@@ -18,6 +18,7 @@ export default function SetupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const [castId, setCastId] = useState('')
 
   // STEP1: IDが存在するか確認のみ（セットアップしない）
   const handleCheckId = async (e: React.FormEvent) => {
@@ -32,6 +33,7 @@ export default function SetupPage() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error); return }
+      setCastId(data.cast_id)
       setStep('name')
     } finally { setLoading(false) }
   }
@@ -53,13 +55,13 @@ export default function SetupPage() {
       const res = await fetch('/api/cast-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'setup', login_id: loginId.trim(), password, password_confirm: confirm, display_name: displayName }),
+        body: JSON.stringify({ action: 'setup', cast_id: castId, display_name: displayName, password }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error); return }
       setDone(true)
       sessionStorage.setItem('cast_auth', JSON.stringify({
-        cast_id: data.cast_id, display_name: data.display_name,
+        cast_id: castId, display_name: displayName,
       }))
       setTimeout(() => router.push('/cast-login/sns'), 1500)
     } finally { setLoading(false) }

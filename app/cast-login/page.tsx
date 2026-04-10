@@ -37,9 +37,9 @@ export default function CastLoginPage() {
 
       // セッションに保存
       sessionStorage.setItem('cast_auth', JSON.stringify({
-        cast_id: data.cast_id,
-        display_name: data.display_name,
-        sns_status: data.sns_status,
+        cast_id: data.auth.cast_id,
+        display_name: data.auth.display_name,
+        sns_status: data.auth.sns_status,
       }))
 
       // SNS接続ページへ

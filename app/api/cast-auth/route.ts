@@ -59,25 +59,72 @@ export async function POST(req: Request) {
       case 'setup': {
         const { cast_id, display_name, password } = body
         const password_hash = await bcrypt.hash(password, 10)
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('cast_auth')
           .update({ display_name, password_hash, is_setup_complete: true })
+          .eq('cast_id', cast_id)
+          .select()
+          .single()
+        if (error) throw error
+        return NextResponse.json({ success: true, cast_id: data.cast_id, display_name: data.display_name })
+      }
+
+      case 'login': {
+        const { login_id, password } = body
+        const { data, error } = await supabase
+          .from('cast_auth')
+          .select('*')
+          .eq('login_id', login_id.trim())
+          .single()
+        if (error || !data) return NextResponse.json({ error: '認証失敗' }, { status: 401 })
+        if (!data.is_setup_complete) return NextResponse.json({ error: 'まだセットアップが完了していません' }, { status: 401 })
+        const valid = await bcrypt.compare(password, data.password_hash)
+        if (!valid) return NextResponse.json({ error: 'パスワードが違います' }, { status: 401 })
+        return NextResponse.json({ success: true, auth: data })
+      }
+
+      case 'reissue_id': {
+        const { cast_id } = body
+        const temp_password = Math.random().toString(36).slice(-8)
+        const password_hash = await bcrypt.hash(temp_password, 10)
+        const { data, error } = await supabase
+          .from('cast_auth')
+          .update({ password_hash, is_setup_complete: false })
+          .eq('cast_id', cast_id)
+          .select()
+          .single()
+        if (error) throw error
+        return NextResponse.json({ success: true, auth: { ...data, temp_password } })
+      }
+
+      case 'update_display_name': {
+        const { cast_id, display_name } = body
+        const { error } = await supabase
+          .from('cast_auth')
+          .update({ display_name })
           .eq('cast_id', cast_id)
         if (error) throw error
         return NextResponse.json({ success: true })
       }
 
-      case 'login': {
-        const { cast_id, password } = body
-        const { data, error } = await supabase
+      case 'update_sns': {
+        const { cast_id, platform, connected, username } = body
+        const { data: current, error: fetchErr } = await supabase
           .from('cast_auth')
-          .select('*')
+          .select('sns_status')
           .eq('cast_id', cast_id)
           .single()
-        if (error || !data) return NextResponse.json({ error: '認証失敗' }, { status: 401 })
-        const valid = await bcrypt.compare(password, data.password_hash)
-        if (!valid) return NextResponse.json({ error: 'パスワードが違います' }, { status: 401 })
-        return NextResponse.json({ success: true, auth: data })
+        if (fetchErr) throw fetchErr
+        const sns_status = {
+          ...(current?.sns_status ?? {}),
+          [platform]: { connected, username, connected_at: connected ? new Date().toISOString() : null },
+        }
+        const { error } = await supabase
+          .from('cast_auth')
+          .update({ sns_status })
+          .eq('cast_id', cast_id)
+        if (error) throw error
+        return NextResponse.json({ success: true })
       }
 
       case 'delete': {
