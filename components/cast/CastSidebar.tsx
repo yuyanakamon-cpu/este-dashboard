@@ -26,7 +26,7 @@ export default function CastSidebar({ cast }: CastSidebarProps) {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-full bg-white border-r border-stone-100 flex flex-col z-40"
+      className="hidden md:flex fixed left-0 top-0 h-full bg-white border-r border-stone-100 flex-col z-40"
       style={{ width: 'var(--sidebar-width)' }}
     >
       {/* ロゴ */}

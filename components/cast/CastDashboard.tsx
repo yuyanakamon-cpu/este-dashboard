@@ -37,7 +37,7 @@ export default function CastDashboard({ cast }: { cast: Cast }) {
     s + (cast.platforms[p].connected ? cast.platforms[p].followers : 0), 0)
 
   return (
-    <div className="p-6 max-w-4xl mx-auto animate-fade-in">
+    <div className="p-4 md:p-6 max-w-4xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-start gap-4 mb-5">
         <div className={clsx('w-14 h-14 rounded-2xl text-xl flex items-center justify-center font-medium flex-shrink-0', cast.avatar_color)}>
@@ -68,7 +68,7 @@ export default function CastDashboard({ cast }: { cast: Cast }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-stone-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 mb-4 md:mb-6 bg-stone-100 p-1 rounded-xl w-fit max-w-full overflow-x-auto">
         {TABS.map(tab => (
           <button
             key={tab.key}
@@ -91,7 +91,7 @@ export default function CastDashboard({ cast }: { cast: Cast }) {
           <p className="text-sm text-stone-500 leading-relaxed">{cast.character_desc}</p>
 
           {/* Platform accounts */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {PLATFORMS.map(p => {
               const acc = cast.platforms[p]
               if (!acc.connected) return (
@@ -126,20 +126,20 @@ export default function CastDashboard({ cast }: { cast: Cast }) {
           </div>
 
           {/* Monthly stats */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-xl border border-stone-100 px-4 py-3.5">
-              <div className="text-xs text-stone-400 mb-1">月間予測予約数</div>
-              <div className="text-2xl font-semibold text-stone-800">{cast.monthly_bookings_estimated}</div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-white rounded-xl border border-stone-100 px-3 py-3">
+              <div className="text-[10px] text-stone-400 mb-1 leading-tight">月間予測<br className="sm:hidden"/>予約数</div>
+              <div className="text-xl font-semibold text-stone-800">{cast.monthly_bookings_estimated}</div>
               <div className="text-xs text-stone-400">件</div>
             </div>
-            <div className="bg-white rounded-xl border border-stone-100 px-4 py-3.5">
-              <div className="text-xs text-stone-400 mb-1">月間フォロワー増加</div>
-              <div className="text-2xl font-semibold text-stone-800">+{cast.monthly_follower_growth.toLocaleString()}</div>
+            <div className="bg-white rounded-xl border border-stone-100 px-3 py-3">
+              <div className="text-[10px] text-stone-400 mb-1 leading-tight">フォロワー<br className="sm:hidden"/>増加</div>
+              <div className="text-xl font-semibold text-stone-800">+{cast.monthly_follower_growth.toLocaleString()}</div>
               <div className="text-xs text-stone-400">人</div>
             </div>
-            <div className="bg-white rounded-xl border border-stone-100 px-4 py-3.5">
-              <div className="text-xs text-stone-400 mb-1">月間総投稿数</div>
-              <div className="text-2xl font-semibold text-stone-800">
+            <div className="bg-white rounded-xl border border-stone-100 px-3 py-3">
+              <div className="text-[10px] text-stone-400 mb-1 leading-tight">月間<br className="sm:hidden"/>投稿数</div>
+              <div className="text-xl font-semibold text-stone-800">
                 {PLATFORMS.reduce((s, p) => s + cast.platforms[p].posts_this_month, 0)}
               </div>
               <div className="text-xs text-stone-400">件</div>
