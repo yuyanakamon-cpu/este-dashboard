@@ -123,7 +123,10 @@ export async function POST(req: Request) {
           .from('cast_auth')
           .update({ sns_status })
           .eq('cast_id', cast_id)
-        if (error) throw error
+        if (error) {
+          console.error('[update_sns] supabase error:', JSON.stringify(error))
+          throw new Error(error.message)
+        }
         return NextResponse.json({ success: true })
       }
 
@@ -148,7 +151,10 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: '不明なアクション' }, { status: 400 })
     }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'エラーが発生しました'
+    console.error('[cast-auth] error:', JSON.stringify(err))
+    const message = err instanceof Error
+      ? err.message
+      : (err as { message?: string })?.message ?? JSON.stringify(err)
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
