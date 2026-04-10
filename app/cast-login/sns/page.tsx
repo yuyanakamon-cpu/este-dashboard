@@ -76,6 +76,7 @@ export default function SnsConnectionPage() {
   const [usernameInput, setUsernameInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [savedPlatform, setSavedPlatform] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   // 名前編集
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
@@ -116,6 +117,7 @@ export default function SnsConnectionPage() {
   const handleSave = async (platform: string) => {
     if (!auth || !usernameInput.trim()) return
     setSaving(true)
+    setSaveError(null)
     try {
       const res = await fetch('/api/cast-auth', {
         method: 'POST',
@@ -128,6 +130,7 @@ export default function SnsConnectionPage() {
           username: usernameInput.trim(),
         }),
       })
+      const data = await res.json()
       if (res.ok) {
         const newStatus = {
           ...snsStatus,
@@ -138,7 +141,11 @@ export default function SnsConnectionPage() {
         setEditingPlatform(null)
         setSavedPlatform(platform)
         setTimeout(() => setSavedPlatform(null), 2000)
+      } else {
+        setSaveError(data.error ?? '保存に失敗しました')
       }
+    } catch {
+      setSaveError('通信エラーが発生しました')
     } finally {
       setSaving(false)
     }
@@ -319,6 +326,9 @@ export default function SnsConnectionPage() {
                       {saving ? '保存中' : '保存'}
                     </button>
                   </div>
+                  {saveError && isEditing && (
+                    <p className="text-xs text-red-500 mt-2 bg-red-50 rounded-lg px-3 py-2">{saveError}</p>
+                  )}
                   {isConnected && (
                     <button
                       onClick={() => handleDisconnect(sns.key)}

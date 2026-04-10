@@ -109,12 +109,12 @@ export async function POST(req: Request) {
 
       case 'update_sns': {
         const { cast_id, platform, connected, username } = body
-        const { data: current, error: fetchErr } = await supabase
+        // Fetch current sns_status to merge (ignore fetch error — treat as empty)
+        const { data: current } = await supabase
           .from('cast_auth')
           .select('sns_status')
           .eq('cast_id', cast_id)
           .single()
-        if (fetchErr) throw fetchErr
         const sns_status = {
           ...(current?.sns_status ?? {}),
           [platform]: { connected, username, connected_at: connected ? new Date().toISOString() : null },
