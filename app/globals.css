@@ -9,6 +9,8 @@
 }
 @media (max-width: 767px) {
   :root { --sidebar-width: 0px; }
+  aside { display: none !important; }
+  main { margin-left: 0 !important; }
 }
 * { box-sizing: border-box; }
 body { font-family: var(--font-sans); background: #faf9f8; color: #1a1a1a; -webkit-font-smoothing: antialiased; }
