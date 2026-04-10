@@ -30,14 +30,27 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
 }
 
-export default function CastDashboard({ cast }: { cast: Cast }) {
-  const [activeTab, setActiveTab] = useState('overview')
+export default function CastDashboard({
+  cast,
+  activeTab: activeTabProp,
+  onTabChange,
+}: {
+  cast: Cast
+  activeTab?: string
+  onTabChange?: (tab: string) => void
+}) {
+  const [localTab, setLocalTab] = useState('overview')
+  const activeTab = activeTabProp ?? localTab
+  const setActiveTab = (tab: string) => {
+    setLocalTab(tab)
+    onTabChange?.(tab)
+  }
 
   const totalFollowers = PLATFORMS.reduce((s, p) =>
     s + (cast.platforms[p].connected ? cast.platforms[p].followers : 0), 0)
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto animate-fade-in">
+    <div className="p-4 md:p-6 pb-20 md:pb-6 max-w-4xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-start gap-4 mb-5">
         <div className={clsx('w-14 h-14 rounded-2xl text-xl flex items-center justify-center font-medium flex-shrink-0', cast.avatar_color)}>

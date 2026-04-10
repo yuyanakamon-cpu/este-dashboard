@@ -129,6 +129,63 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, results })
       }
 
+      // ── 今すぐ投稿（新規作成 → 即実行） ──
+      case 'immediate': {
+        const { castId, castName, platforms, postType, content, credentials } = body
+        if (!content?.trim()) {
+          return NextResponse.json({ error: '投稿テキストが空です' }, { status: 400 })
+        }
+        if (!platforms?.length) {
+          return NextResponse.json({ error: '投稿先プラットフォームを選んでください' }, { status: 400 })
+        }
+
+        const now = new Date().toISOString()
+        const post: ScheduledPost = {
+          id: nanoid(12),
+          cast_id: castId,
+          cast_name: castName ?? castId,
+          platforms,
+          post_type: postType ?? 'personality',
+          content,
+          scheduled_at: now,
+          status: 'pending',
+          created_at: now,
+          updated_at: now,
+          retry_count: 0,
+          max_retries: 1,
+        }
+        QueueStore.upsert(post)
+
+        // キャスト固有の認証情報があれば使う
+        let results
+        if (credentials) {
+          const { getAdapterWithCredentials } = await import('@/lib/platforms/adapter')
+          const platformResults = await Promise.allSettled(
+            platforms.map((p: string) =>
+              getAdapterWithCredentials(p as never, credentials[p]).post(content)
+            )
+          )
+          results = platformResults.map((r, i) =>
+            r.status === 'fulfilled' ? r.value : { platform: platforms[i], status: 'failed', error: '投稿エラー' }
+          )
+          const allFailed = results.every((r: { status: string }) => r.status === 'failed')
+          QueueStore.updateStatus(post.id, {
+            status: allFailed ? 'failed' : 'sent',
+            results,
+            error: allFailed ? results.map((r: { error?: string }) => r.error).filter(Boolean).join(', ') : undefined,
+          })
+        } else {
+          results = await runSingle(post.id)
+        }
+
+        const allFailed = results.every((r: { status: string }) => r.status === 'failed')
+        return NextResponse.json({
+          success: !allFailed,
+          results,
+          post_id: post.id,
+        })
+      }
+
       // ── 古い投稿をクリーンアップ ──
       case 'cleanup': {
         const deleted = QueueStore.cleanup()

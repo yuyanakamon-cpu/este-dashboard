@@ -8,7 +8,7 @@ import { POST_TYPE_LABELS, POST_TYPE_COLORS, PLATFORM_LABELS } from '@/lib/mock-
 import { useGenerate } from '@/lib/ai/useGenerate'
 import {
   Send, Sparkles, Edit3, CheckCircle2, Clock,
-  FileText, AlertCircle, RefreshCw, Copy, ChevronDown, ChevronUp, Loader2
+  FileText, AlertCircle, RefreshCw, Copy, ChevronDown, ChevronUp, Loader2, CalendarClock
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -41,6 +41,10 @@ export default function PostsTab({ cast }: PostsTabProps) {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
   const [mode, setMode] = useState<'single' | 'variations'>('single')
   const [writingStyle, setWritingStyle] = useState<WritingStyle>('natural')
+  const [isPosting, setIsPosting] = useState(false)
+  const [postResult, setPostResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [scheduleMode, setScheduleMode] = useState<'now' | 'schedule'>('now')
+  const [scheduledAt, setScheduledAt] = useState('')
 
   const { text, texts, isLoading, error, generate, generateVariations, clear } = useGenerate({
     cast,
@@ -75,6 +79,60 @@ export default function PostsTab({ cast }: PostsTabProps) {
     setTimeout(() => setCopiedIdx(null), 2000)
   }
 
+  const handlePost = async () => {
+    if (!postContent.trim() || selectedPlatforms.length === 0) return
+    setIsPosting(true)
+    setPostResult(null)
+    try {
+      const action = scheduleMode === 'schedule' && scheduledAt ? 'add' : 'immediate'
+      const body: Record<string, unknown> = {
+        action,
+        castId: cast.id,
+        castName: cast.display_name,
+        platforms: selectedPlatforms,
+        postType: 'personality',
+        content: postContent,
+      }
+      if (action === 'add') {
+        body.scheduledAt = new Date(scheduledAt).toISOString()
+      }
+
+      const res = await fetch('/api/scheduler/queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+
+      if (action === 'immediate') {
+        const sentPlatforms = (data.results ?? []).filter((r: { status: string }) => r.status === 'sent').map((r: { platform: string }) => r.platform)
+        const failedPlatforms = (data.results ?? []).filter((r: { status: string }) => r.status === 'failed').map((r: { platform: string; error?: string }) => r)
+        if (data.success || sentPlatforms.length > 0) {
+          setPostResult({ success: true, message: `投稿完了: ${sentPlatforms.join(', ')}${failedPlatforms.length ? `（失敗: ${failedPlatforms.map((r: { platform: string }) => r.platform).join(', ')}）` : ''}` })
+          setPostContent('')
+          clear()
+        } else {
+          const errMsg = failedPlatforms[0]?.error ?? data.error ?? '投稿に失敗しました'
+          setPostResult({ success: false, message: errMsg })
+        }
+      } else {
+        if (data.success || data.post) {
+          const dt = new Date(scheduledAt).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+          setPostResult({ success: true, message: `${dt} に予約しました` })
+          setPostContent('')
+          setScheduledAt('')
+          clear()
+        } else {
+          setPostResult({ success: false, message: data.error ?? '予約に失敗しました' })
+        }
+      }
+    } catch {
+      setPostResult({ success: false, message: 'ネットワークエラーが発生しました' })
+    } finally {
+      setIsPosting(false)
+    }
+  }
+
   const togglePlatform = (p: Platform) => {
     setSelectedPlatforms(prev =>
       prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
@@ -86,7 +144,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
 
       {/* AI生成パネル */}
       <div className="bg-white rounded-2xl border border-stone-100">
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-stone-50">
+        <div className="flex items-center justify-between px-4 md:px-6 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-stone-50">
           <h3 className="text-sm font-semibold text-stone-700 flex items-center gap-2">
             <Sparkles size={15} className="text-rose-500" />
             AI投稿テキスト生成
@@ -105,7 +163,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
           </div>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-4 md:p-6 space-y-5">
 
           {/* プラットフォーム選択 */}
           <div>
@@ -168,7 +226,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
           {/* 投稿の種類 */}
           <div>
             <div className="text-xs font-medium text-stone-500 mb-2">投稿の種類を選んで生成</div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {POST_TYPES.map(type => (
                 <button
                   key={type}
@@ -285,12 +343,12 @@ export default function PostsTab({ cast }: PostsTabProps) {
       </div>
 
       {/* 投稿エディタ */}
-      <div className="bg-white rounded-2xl border border-stone-100 p-6">
+      <div className="bg-white rounded-2xl border border-stone-100 p-4 md:p-6">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-stone-700">投稿エディタ</h3>
           {postContent && (
             <button
-              onClick={() => { setPostContent(''); clear() }}
+              onClick={() => { setPostContent(''); setPostResult(null); clear() }}
               className="text-xs text-stone-400 hover:text-stone-600 flex items-center gap-1 transition-colors"
             >
               <RefreshCw size={11} />クリア
@@ -306,27 +364,78 @@ export default function PostsTab({ cast }: PostsTabProps) {
           className="w-full text-sm border border-stone-200 rounded-xl p-4 resize-none focus:outline-none focus:border-rose-300 transition-colors text-stone-700 placeholder-stone-300 leading-relaxed"
         />
 
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center gap-3">
-            <span className={clsx('text-xs font-medium', postContent.length > 140 ? 'text-amber-600' : 'text-stone-400')}>
-              {postContent.length}文字
-            </span>
-            {postContent.length > 0 && (
-              <div className="flex gap-1.5">
-                {selectedPlatforms.map(p => {
-                  const limits: Record<Platform, number> = { x: 140, bluesky: 300, threads: 500, instagram: 2200 }
-                  const ok = postContent.length <= limits[p]
-                  return (
-                    <span key={p} className={clsx('text-[10px] flex items-center gap-0.5', ok ? 'text-green-600' : 'text-red-500')}>
-                      {PLATFORM_ICONS[p]}
-                      {ok ? '✓' : `×(${limits[p]}字制限)`}
-                    </span>
-                  )
-                })}
-              </div>
-            )}
+        {/* 文字数 */}
+        <div className="flex items-center gap-3 mt-2">
+          <span className={clsx('text-xs font-medium', postContent.length > 140 ? 'text-amber-600' : 'text-stone-400')}>
+            {postContent.length}文字
+          </span>
+          {postContent.length > 0 && (
+            <div className="flex gap-1.5 flex-wrap">
+              {selectedPlatforms.map(p => {
+                const limits: Record<Platform, number> = { x: 140, bluesky: 300, threads: 500, instagram: 2200 }
+                const ok = postContent.length <= limits[p]
+                return (
+                  <span key={p} className={clsx('text-[10px] flex items-center gap-0.5', ok ? 'text-green-600' : 'text-red-500')}>
+                    {PLATFORM_ICONS[p]}
+                    {ok ? '✓' : `×(${limits[p]}字制限)`}
+                  </span>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 投稿結果トースト */}
+        {postResult && (
+          <div className={clsx(
+            'mt-3 flex items-start gap-2 p-3 rounded-xl border text-xs',
+            postResult.success
+              ? 'bg-green-50 border-green-100 text-green-700'
+              : 'bg-red-50 border-red-100 text-red-700'
+          )}>
+            {postResult.success
+              ? <CheckCircle2 size={13} className="shrink-0 mt-0.5" />
+              : <AlertCircle size={13} className="shrink-0 mt-0.5" />}
+            {postResult.message}
           </div>
-          <div className="flex items-center gap-2">
+        )}
+
+        {/* 投稿モード切替 + アクションボタン */}
+        <div className="mt-3 space-y-3">
+          {/* モード切替タブ */}
+          <div className="flex gap-1 bg-stone-100 p-0.5 rounded-xl w-fit">
+            <button
+              onClick={() => setScheduleMode('now')}
+              className={clsx('text-xs px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5',
+                scheduleMode === 'now' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500')}
+            >
+              <Send size={11} />今すぐ投稿
+            </button>
+            <button
+              onClick={() => setScheduleMode('schedule')}
+              className={clsx('text-xs px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5',
+                scheduleMode === 'schedule' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500')}
+            >
+              <CalendarClock size={11} />予約投稿
+            </button>
+          </div>
+
+          {/* 予約日時ピッカー */}
+          {scheduleMode === 'schedule' && (
+            <div>
+              <label className="text-xs text-stone-500 mb-1 block">投稿日時</label>
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={e => setScheduledAt(e.target.value)}
+                min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                className="text-sm border border-stone-200 rounded-xl px-3 py-2 focus:outline-none focus:border-rose-300 transition-colors text-stone-700 w-full md:w-auto"
+              />
+            </div>
+          )}
+
+          {/* ボタン行 */}
+          <div className="flex items-center justify-end gap-2">
             {postContent && (
               <button
                 onClick={() => handleCopy(postContent, -1)}
@@ -337,11 +446,14 @@ export default function PostsTab({ cast }: PostsTabProps) {
               </button>
             )}
             <button
-              disabled={!postContent || selectedPlatforms.length === 0}
+              onClick={handlePost}
+              disabled={!postContent || selectedPlatforms.length === 0 || isPosting || (scheduleMode === 'schedule' && !scheduledAt)}
               className="flex items-center gap-2 text-sm bg-rose-500 text-white px-5 py-2 rounded-xl font-medium hover:bg-rose-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
             >
-              <Send size={13} />
-              今すぐ投稿
+              {isPosting
+                ? <Loader2 size={13} className="animate-spin" />
+                : scheduleMode === 'schedule' ? <CalendarClock size={13} /> : <Send size={13} />}
+              {isPosting ? '投稿中...' : scheduleMode === 'schedule' ? '予約する' : '今すぐ投稿'}
             </button>
           </div>
         </div>

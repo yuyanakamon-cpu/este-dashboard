@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESTE SNS — モバイルプレビュー</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  /* ページ背景 */
+  html, body {
+    background: #1a1a2e;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  }
+
+  /* スマホフレーム */
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #fff;
+    border-radius: 50px;
+    box-shadow:
+      0 0 0 10px #222,
+      0 0 0 12px #555,
+      0 40px 80px rgba(0,0,0,0.6);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* ノッチ */
+  .notch {
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 140px; height: 30px;
+    background: #222;
+    border-radius: 0 0 20px 20px;
+    z-index: 999;
+  }
+
+  /* フレーム内スクロール領域 */
+  .phone-inner {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    border-radius: 50px;
+  }
+
+  /* ===== APP STYLES ===== */
+  :root {
+    --pink: #e91e8c;
+    --pink-light: #fce4f3;
+    --purple: #9c27b0;
+    --purple-light: #f3e5f5;
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --surface2: #faf5fb;
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1a2e;
+    --text2: #6b5b7b;
+    --text3: #9e8aaa;
+    --green: #2e7d32;
+    --green-bg: #e8f5e9;
+    --red: #c62828;
+    --red-bg: #ffebee;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --shadow: 0 2px 12px rgba(233,30,140,0.07);
+  }
+
+  .app {
+    width: 375px;
+    height: 812px;
+    background: var(--bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ステータスバー */
+  .status-bar {
+    height: 44px;
+    background: var(--surface);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 24px 8px;
+    flex-shrink: 0;
+  }
+  .status-time { font-size: 15px; font-weight: 700; color: var(--text); }
+  .status-icons { font-size: 13px; color: var(--text); display: flex; gap: 4px; align-items: center; }
+
+  /* トップナビ */
+  .top-nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px;
+  }
+  .logo-text { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .logo-sub { font-size: 9px; color: var(--text3); }
+
+  .view-toggle {
+    display: flex; background: var(--bg);
+    border-radius: 8px; padding: 3px; gap: 2px;
+  }
+  .view-btn {
+    padding: 4px 12px; border: none; background: transparent;
+    border-radius: 6px; font-size: 12px; color: var(--text2);
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .view-btn.active {
+    background: var(--surface); color: var(--pink);
+    font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  /* スクロールコンテンツ */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 14px 0;
+  }
+  .scroll-content::-webkit-scrollbar { display: none; }
+
+  /* ボトムナビ */
+  .bottom-nav {
+    height: 64px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-shrink: 0;
+  }
+  .bottom-nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    cursor: pointer; color: var(--text3); font-size: 10px;
+    transition: color 0.15s;
+  }
+  .bottom-nav-item.active { color: var(--pink); }
+  .bottom-nav-icon { font-size: 20px; line-height: 1; }
+
+  /* ページ */
+  .page { display: none; }
+  .page.active { display: block; padding-bottom: 14px; }
+
+  /* バッジ */
+  .badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  .badge.connected { background: var(--green-bg); color: var(--green); }
+  .badge.disconnected { background: var(--red-bg); color: var(--red); }
+  .badge.off { background: #f0f0f0; color: #999; }
+
+  /* プロフィールバー */
+  .profile-bar {
+    display: flex; align-items: center; gap: 11px;
+    background: var(--surface); border-radius: var(--radius);
+    padding: 13px 14px; margin-bottom: 12px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+  }
+  .profile-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 17px; font-weight: 700; flex-shrink: 0;
+  }
+  .profile-info { flex: 1; min-width: 0; }
+  .profile-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .profile-meta { font-size: 11px; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+  .profile-shift { font-size: 10px; color: var(--text3); margin-top: 1px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #aaa; display: inline-block; }
+
+  /* 統計グリッド */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 12px; }
+  .stat-card {
+    background: var(--surface); border-radius: var(--radius-sm);
+    padding: 13px; border: 1px solid var(--border); box-shadow: var(--shadow);
+  }
+  .stat-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
+  .stat-up { color: var(--green); }
+
+  /* カード */
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden;
+  }
+  .card-header {
+    padding: 13px 14px 11px; border-bottom: 1px solid var(--border);
+    font-size: 13px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-header-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+  .card-body { padding: 13px 14px; }
+
+  /* SNSリスト */
+  .sns-list { display: flex; flex-direction: column; gap: 9px; }
+  .sns-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 13px; border-radius: var(--radius-sm);
+    background: var(--surface2); border: 1px solid var(--border);
+  }
+  .sns-item.active-sns { background: #e8f5ff; border-color: rgba(29,161,242,0.2); }
+  .sns-info { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 500; color: var(--text); }
+  .sns-icon { font-size: 18px; width: 24px; text-align: center; }
+  .connect-btn {
+    padding: 6px 13px; border-radius: 9px; border: none;
+    background: var(--pink); color: white; font-size: 11px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .outline-btn {
+    padding: 6px 13px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text2); font-size: 11px;
+    cursor: pointer; font-family: inherit;
+  }
+
+  /* 投稿リスト */
+  .post-item { display: flex; gap: 9px; padding: 11px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .post-item:last-child { border-bottom: none; }
+  .post-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .post-body { flex: 1; min-width: 0; }
+  .post-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .post-time { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .post-status { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; flex-shrink: 0; margin-top: 2px; }
+  .post-status.done { background: var(--green-bg); color: var(--green); }
+  .post-status.scheduled { background: var(--pink-light); color: var(--pink); }
+
+  /* AI生成 */
+  .ai-card {
+    background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
+    border-radius: var(--radius); padding: 14px;
+    border: 1px solid rgba(233,30,140,0.15); margin-bottom: 12px;
+  }
+  .ai-title { font-size: 12px; font-weight: 700; color: var(--pink); margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
+  .type-btn {
+    background: var(--surface); border-radius: 10px; padding: 10px;
+    border: 1px solid rgba(233,30,140,0.15); cursor: pointer; text-align: left; font-family: inherit;
+  }
+  .type-btn:active { transform: scale(0.97); }
+  .type-icon { font-size: 16px; margin-bottom: 3px; }
+  .type-name { font-size: 11px; font-weight: 700; color: var(--text); }
+  .type-desc { font-size: 9px; color: var(--text3); margin-top: 1px; line-height: 1.4; }
+
+  .platform-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 20px; border: 1.5px solid var(--border); font-size: 11px; font-weight: 600; cursor: pointer; background: var(--surface); color: var(--text2); }
+  .chip.selected { border-color: var(--pink); background: var(--pink-light); color: var(--pink); }
+  .chip.disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .editor {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 10px; font-family: inherit; font-size: 13px; color: var(--text);
+    background: var(--surface); resize: none; outline: none; line-height: 1.6;
+  }
+  .editor:focus { border-color: var(--pink); }
+  .editor::placeholder { color: var(--text3); }
+  .editor-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .send-btn { display: flex; align-items: center; gap: 5px; padding: 8px 16px; background: var(--pink); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+  /* マスター */
+  .master-bar {
+    background: linear-gradient(135deg, #1a1a2e, #2d1b69);
+    border-radius: var(--radius); padding: 14px;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 11px;
+  }
+  .master-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #7b1fa2, #4a148c); display: flex; align-items: center; justify-content: center; color: white; font-size: 17px; font-weight: 700; flex-shrink: 0; }
+  .master-name { font-size: 16px; font-weight: 700; color: white; }
+  .master-sub { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+  .cast-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .cast-row:last-child { border-bottom: none; }
+  .mini-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--pink), var(--purple)); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .cast-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .cast-meta-text { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .detail-btn { padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 11px; color: var(--text2); cursor: pointer; font-family: inherit; flex-shrink: 0; }
+
+  .issue-btn {
+    width: 100%; padding: 13px;
+    background: var(--pink); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: inherit; display: flex; align-items: center;
+    justify-content: center; gap: 7px; margin-bottom: 12px;
+  }
+
+  .id-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+  .id-header { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+  .id-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--pink), var(--purple)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
+  .id-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .id-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+  .id-field { background: var(--bg); border-radius: 9px; padding: 9px 11px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+  .id-field-label { font-size: 10px; color: var(--text3); margin-bottom: 1px; }
+  .id-value { font-size: 20px; font-weight: 700; font-family: monospace; letter-spacing: 3px; color: var(--text); }
+  .copy-icon { font-size: 16px; cursor: pointer; color: var(--text3); }
+
+  .share-box { background: var(--pink-light); border: 1px solid rgba(233,30,140,0.15); border-radius: 11px; padding: 11px; }
+  .share-label { font-size: 10px; color: var(--pink); font-weight: 700; margin-bottom: 7px; }
+  .share-text { background: white; border-radius: 7px; padding: 9px; font-size: 11px; color: var(--text2); line-height: 1.7; font-family: monospace; border: 1px solid rgba(233,30,140,0.1); }
+  .share-copy { display: flex; align-items: center; gap: 5px; margin-top: 7px; font-size: 11px; font-weight: 600; color: var(--pink); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; }
+
+  /* キャラ設定 */
+  .char-block { margin-bottom: 14px; }
+  .char-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 600; }
+  .char-val { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .style-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .style-chip { font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+  .style-chip.on { background: var(--pink-light); color: var(--pink); }
+  .style-chip.off { background: var(--bg); color: var(--text3); border: 1px solid var(--border); }
+
+  /* 通知 */
+  .notif-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--border); }
+  .notif-row:last-child { border-bottom: none; }
+  .notif-label { font-size: 13px; font-weight: 500; color: var(--text); }
+  .notif-desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .toggle-wrap { position: relative; width: 44px; height: 24px; flex-shrink: 0; cursor: pointer; }
+  .toggle-track { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 24px; }
+  .toggle-track.on { background: var(--pink); }
+  .toggle-track.off { background: #ccc; }
+  .toggle-thumb { position: absolute; top: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: left 0.2s; }
+  .toggle-thumb.on { left: 22px; }
+  .toggle-thumb.off { left: 2px; }
+
+  /* 設定 */
+  .setting-block { margin-bottom: 14px; }
+  .setting-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 600; }
+  .setting-val { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; font-size: 13px; color: var(--text); }
+  .time-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+  .time-chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; font-weight: 600; background: var(--pink-light); color: var(--pink); }
+  .time-add { background: var(--bg); color: var(--text3); border: 1px solid var(--border); cursor: pointer; }
+
+  .empty-state { text-align: center; padding: 36px 16px; color: var(--text3); font-size: 13px; line-height: 2; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="notch"></div>
+  <div class="phone-inner">
+  <div class="app">
+
+    <!-- ステータスバー -->
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <span class="status-icons">▲ 📶 🔋</span>
+    </div>
+
+    <!-- トップナビ -->
+    <nav class="top-nav">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <div class="logo-text">ESTE SNS</div>
+          <div class="logo-sub">自動運用システム</div>
+        </div>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="switchView('cast')" id="btn-cast">キャスト</button>
+        <button class="view-btn" onclick="switchView('master')" id="btn-master">マスター</button>
+      </div>
+    </nav>
+
+    <!-- ===== キャストビュー ===== -->
+    <div id="view-cast" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+
+      <div class="scroll-content" id="cast-scroll">
+
+        <div class="profile-bar">
+          <div class="profile-avatar">天</div>
+          <div class="profile-info">
+            <div class="profile-name">天界</div>
+            <div class="profile-meta"><span class="dot"></span> 休み</div>
+            <div class="profile-shift">シフト: --:-- 〜 --:--</div>
+          </div>
+          <span class="badge off">オフ</span>
+        </div>
+
+        <!-- 概要 -->
+        <div id="cast-overview" class="page active">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">総フォロワー</div><div class="stat-value">0</div><div class="stat-sub">全SNS合計</div></div>
+            <div class="stat-card"><div class="stat-label">今日の投稿</div><div class="stat-value">0</div><div class="stat-sub">予定 0件</div></div>
+            <div class="stat-card"><div class="stat-label">ENG率</div><div class="stat-value">0<span style="font-size:12px;font-weight:400">%</span></div><div class="stat-sub">本日実績</div></div>
+            <div class="stat-card"><div class="stat-label">接続SNS</div><div class="stat-value">1</div><div class="stat-sub stat-up">Bluesky</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header">SNS接続状況<span class="card-header-sub">1/4 接続済み</span></div>
+            <div class="card-body">
+              <div class="sns-list">
+                <div class="sns-item"><div class="sns-info"><span class="sns-icon">𝕏</span>X (Twitter)</div><button class="connect-btn">接続する</button></div>
+                <div class="sns-item active-sns"><div class="sns-info"><span class="sns-icon">🦋</span>Bluesky</div><button class="outline-btn">接続中</button></div>
+                <div class="sns-item"><div class="sns-info"><span class="sns-icon">🧵</span>Threads</div><button class="connect-btn">接続する</button></div>
+                <div class="sns-item"><div class="sns-info"><span class="sns-icon">📷</span>Instagram</div><button class="connect-btn">接続する</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 投稿管理 -->
+        <div id="cast-posts" class="page">
+          <div class="ai-card">
+            <div class="ai-title">✨ AI投稿テキスト生成</div>
+            <div class="platform-chips">
+              <div class="chip disabled">𝕏 X</div>
+              <div class="chip selected">🦋 Bluesky</div>
+              <div class="chip disabled">🧵 Threads</div>
+              <div class="chip disabled">📷 Instagram</div>
+            </div>
+            <div class="type-grid">
+              <button class="type-btn"><div class="type-icon">🌸</div><div class="type-name">出勤告知</div><div class="type-desc">出勤時間・来てほしい気持ち</div></button>
+              <button class="type-btn"><div class="type-icon">⚡</div><div class="type-name">空き情報</div><div class="type-desc">空き枠を告知・即予約促進</div></button>
+              <button class="type-btn"><div class="type-icon">💬</div><div class="type-name">日常投稿</div><div class="type-desc">人柄でファン育成</div></button>
+              <button class="type-btn"><div class="type-icon">📸</div><div class="type-name">メディア</div><div class="type-desc">写真・動画のキャプション</div></button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">投稿エディタ</div>
+            <div class="card-body">
+              <textarea class="editor" rows="4" placeholder="AI生成ボタンを押すか、直接入力してください..."></textarea>
+              <div class="editor-footer">
+                <span style="font-size:11px;color:var(--text3);">0 文字</span>
+                <button class="send-btn" disabled>▶ 今すぐ投稿</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">本日の投稿キュー<span class="card-header-sub">3件</span></div>
+            <div class="card-body">
+              <div class="post-item"><div class="post-icon">🦋</div><div class="post-body"><div class="post-text">今日もよろしくお願いします！プロフィールはリンクから🌸</div><div class="post-time">Bluesky · 10:00</div></div><div class="post-status done">投稿済</div></div>
+              <div class="post-item"><div class="post-icon">🦋</div><div class="post-body"><div class="post-text">今夜もお待ちしております💕お気軽にDMどうぞ</div><div class="post-time">Bluesky · 18:00</div></div><div class="post-status scheduled">予定</div></div>
+              <div class="post-item"><div class="post-icon">🦋</div><div class="post-body"><div class="post-text">おやすみなさい🌙今日も一日お疲れさまでした✨</div><div class="post-time">Bluesky · 23:30</div></div><div class="post-status scheduled">予定</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- キャラ設定 -->
+        <div id="cast-character" class="page">
+          <div class="card">
+            <div class="card-header">プロフィール設定</div>
+            <div class="card-body">
+              <div class="char-block"><div class="char-label">在籍名</div><div class="char-val">天界</div></div>
+              <div class="char-block"><div class="char-label">プロフィール文</div><div class="char-val">天界のプロフィールです。</div></div>
+              <div class="char-block"><div class="char-label">投稿スタイル</div><div class="style-chips"><span class="style-chip on">フレンドリー</span><span class="style-chip off">クール</span><span class="style-chip off">元気系</span><span class="style-chip off">甘え系</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 分析 -->
+        <div id="cast-analytics" class="page">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">フォロワー増加</div><div class="stat-value">+0</div><div class="stat-sub">今月</div></div>
+            <div class="stat-card"><div class="stat-label">インプレッション</div><div class="stat-value">0</div><div class="stat-sub">今月</div></div>
+            <div class="stat-card"><div class="stat-label">ENG率</div><div class="stat-value">0<span style="font-size:12px;font-weight:400">%</span></div><div class="stat-sub">平均</div></div>
+            <div class="stat-card"><div class="stat-label">投稿数</div><div class="stat-value">0</div><div class="stat-sub">今月</div></div>
+          </div>
+          <div class="card"><div class="card-header">投稿パフォーマンス</div><div class="empty-state">📊 データが蓄積されると<br>グラフが表示されます</div></div>
+        </div>
+
+        <!-- 通知 -->
+        <div id="cast-notifications" class="page">
+          <div class="card"><div class="card-body">
+            <div class="notif-row"><div><div class="notif-label">投稿完了通知</div><div class="notif-desc">投稿が完了した時に通知</div></div><div class="toggle-wrap"><div class="toggle-track on"></div><div class="toggle-thumb on"></div></div></div>
+            <div class="notif-row"><div><div class="notif-label">エラー通知</div><div class="notif-desc">SNS連携エラーを通知</div></div><div class="toggle-wrap"><div class="toggle-track on"></div><div class="toggle-thumb on"></div></div></div>
+            <div class="notif-row"><div><div class="notif-label">フォロワー増加通知</div><div class="notif-desc">フォロワーが増えた時</div></div><div class="toggle-wrap"><div class="toggle-track off"></div><div class="toggle-thumb off"></div></div></div>
+          </div></div>
+        </div>
+
+      </div><!-- /scroll-content -->
+
+      <nav class="bottom-nav" id="cast-nav">
+        <div class="bottom-nav-item active" onclick="showPage('cast','overview',this)"><span class="bottom-nav-icon">📊</span><span>概要</span></div>
+        <div class="bottom-nav-item" onclick="showPage('cast','posts',this)"><span class="bottom-nav-icon">✏️</span><span>投稿</span></div>
+        <div class="bottom-nav-item" onclick="showPage('cast','character',this)"><span class="bottom-nav-icon">🎭</span><span>設定</span></div>
+        <div class="bottom-nav-item" onclick="showPage('cast','analytics',this)"><span class="bottom-nav-icon">📈</span><span>分析</span></div>
+        <div class="bottom-nav-item" onclick="showPage('cast','notifications',this)"><span class="bottom-nav-icon">🔔</span><span>通知</span></div>
+      </nav>
+    </div>
+
+    <!-- ===== マスタービュー ===== -->
+    <div id="view-master" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+
+      <div class="scroll-content" id="master-scroll">
+
+        <div class="master-bar">
+          <div class="master-avatar">管</div>
+          <div><div class="master-name">マスター管理者</div><div class="master-sub">全キャスト管理</div></div>
+        </div>
+
+        <!-- 概要 -->
+        <div id="master-overview" class="page active">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">👥 在籍キャスト</div><div class="stat-value">1<span style="font-size:13px;font-weight:400"> 名</span></div></div>
+            <div class="stat-card"><div class="stat-label">🟢 本日出勤</div><div class="stat-value">0<span style="font-size:13px;font-weight:400"> 名</span></div></div>
+            <div class="stat-card"><div class="stat-label">📝 今日の投稿</div><div class="stat-value">0<span style="font-size:13px;font-weight:400"> 件</span></div></div>
+            <div class="stat-card"><div class="stat-label">🔗 SNS接続</div><div class="stat-value">1<span style="font-size:13px;font-weight:400"> 件</span></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header">キャスト一覧</div>
+            <div class="card-body">
+              <div class="cast-row"><div class="mini-avatar">天</div><div style="flex:1"><div class="cast-name">天界</div><div class="cast-meta-text">Bluesky接続中 · 0件投稿</div></div><span class="badge off">休み</span><button class="detail-btn">詳細</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- キャスト管理 -->
+        <div id="master-casts" class="page">
+          <button class="issue-btn">＋ ID発行（次は 00002 番）</button>
+          <div class="id-card">
+            <div class="id-header">
+              <div class="id-avatar">天</div>
+              <div><div class="id-name">天界</div><div class="id-sub">設定済み</div></div>
+              <span class="badge connected" style="margin-left:auto;">設定済</span>
+            </div>
+            <div class="id-field"><div><div class="id-field-label">ログインID</div><div class="id-value">00001</div></div><span class="copy-icon">📋</span></div>
+            <div class="share-box">
+              <div class="share-label">📱 女の子に送る内容</div>
+              <div class="share-text">ログインID: 00001
+URL: https://postmagick.com/cast-login/setup
+
+↑のURLを開いてIDを入力し、
+自分で在籍名とパスワードを設定してください</div>
+              <button class="share-copy">📋 まとめてコピー</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- シフト -->
+        <div id="master-shifts" class="page">
+          <div class="card"><div class="card-header">2026年4月 シフト</div><div class="empty-state">📅 シフトを設定してください</div></div>
+        </div>
+
+        <!-- 投稿 -->
+        <div id="master-posts" class="page">
+          <div class="card"><div class="card-header">全キャスト投稿<button class="connect-btn" style="font-size:11px;">+ 一括作成</button></div><div class="empty-state">✏️ 投稿データがありません</div></div>
+        </div>
+
+        <!-- 設定 -->
+        <div id="master-settings" class="page">
+          <div class="card"><div class="card-header">店舗設定</div><div class="card-body">
+            <div class="setting-block"><div class="setting-label">店舗名</div><div class="setting-val">エステサロン</div></div>
+            <div class="setting-block"><div class="setting-label">デフォルト投稿時間</div><div class="time-chips"><span class="time-chip">10:00</span><span class="time-chip">18:00</span><span class="time-chip">23:30</span><span class="time-chip time-add">+ 追加</span></div></div>
+          </div></div>
+        </div>
+
+      </div><!-- /master-scroll -->
+
+      <nav class="bottom-nav" id="master-nav">
+        <div class="bottom-nav-item active" onclick="showPage('master','overview',this)"><span class="bottom-nav-icon">📊</span><span>概要</span></div>
+        <div class="bottom-nav-item" onclick="showPage('master','casts',this)"><span class="bottom-nav-icon">👥</span><span>キャスト</span></div>
+        <div class="bottom-nav-item" onclick="showPage('master','shifts',this)"><span class="bottom-nav-icon">📅</span><span>シフト</span></div>
+        <div class="bottom-nav-item" onclick="showPage('master','posts',this)"><span class="bottom-nav-icon">📝</span><span>投稿</span></div>
+        <div class="bottom-nav-item" onclick="showPage('master','settings',this)"><span class="bottom-nav-icon">⚙️</span><span>設定</span></div>
+      </nav>
+    </div>
+
+  </div><!-- /app -->
+  </div><!-- /phone-inner -->
+</div><!-- /phone-frame -->
+
+<script>
+  function switchView(v) {
+    var cast = document.getElementById('view-cast');
+    var master = document.getElementById('view-master');
+    if (v === 'cast') {
+      cast.style.display = 'flex';
+      master.style.display = 'none';
+    } else {
+      cast.style.display = 'none';
+      master.style.display = 'flex';
+    }
+    document.getElementById('btn-cast').className = 'view-btn' + (v === 'cast' ? ' active' : '');
+    document.getElementById('btn-master').className = 'view-btn' + (v === 'master' ? ' active' : '');
+  }
+
+  function showPage(view, page, el) {
+    var prefix = view + '-';
+    document.querySelectorAll('[id^="' + prefix + '"]').forEach(function(p) {
+      if (p.classList.contains('page')) p.classList.remove('active');
+    });
+    document.getElementById(prefix + page).classList.add('active');
+
+    var nav = document.getElementById(view + '-nav');
+    nav.querySelectorAll('.bottom-nav-item').forEach(function(i) { i.classList.remove('active'); });
+    el.classList.add('active');
+
+    var scroll = document.getElementById(view + '-scroll');
+    scroll.scrollTop = 0;
+  }
+</script>
+</body>
+</html>

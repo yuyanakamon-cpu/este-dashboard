@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import CastSidebar from '@/components/cast/CastSidebar'
 import CastDashboard from '@/components/cast/CastDashboard'
+import BottomNav from '@/components/cast/BottomNav'
 import type { Cast } from '@/lib/types'
 
 interface SnsStatus {
@@ -59,6 +60,7 @@ export default function CastPage() {
   const router = useRouter()
   const params = useParams()
   const [cast, setCast] = useState<Cast | null>(null)
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     const stored = sessionStorage.getItem('cast_auth')
@@ -78,8 +80,9 @@ export default function CastPage() {
     <div className="flex min-h-screen bg-stone-50">
       <CastSidebar cast={cast} />
       <main className="flex-1 overflow-auto" style={{ marginLeft: 'var(--sidebar-width)' }}>
-        <CastDashboard cast={cast} />
+        <CastDashboard cast={cast} activeTab={activeTab} onTabChange={setActiveTab} />
       </main>
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   )
 }

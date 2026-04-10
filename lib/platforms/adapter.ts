@@ -97,14 +97,43 @@ function getMockUrl(platform: Platform, postId: string): string {
 // アダプターレジストリ
 // ここを切り替えるだけで Mock → Real に移行できる
 // ─────────────────────────────────────────────
-const ADAPTERS: Record<Platform, PlatformAdapter> = {
-  x:         new MockAdapter('x'),
-  bluesky:   new MockAdapter('bluesky'),
-  threads:   new MockAdapter('threads'),
-  instagram: new MockAdapter('instagram'),
+function buildAdapters(): Record<Platform, PlatformAdapter> {
+  const adapters: Record<Platform, PlatformAdapter> = {
+    x:         new MockAdapter('x'),
+    bluesky:   new MockAdapter('bluesky'),
+    threads:   new MockAdapter('threads'),
+    instagram: new MockAdapter('instagram'),
+  }
+
+  // Bluesky実API: 環境変数があれば切り替え
+  const bskyId = process.env.BLUESKY_IDENTIFIER
+  const bskyPw = process.env.BLUESKY_APP_PASSWORD
+  if (bskyId && bskyPw) {
+    // Dynamic require to avoid import issues on client side
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { BlueskyAdapter } = require('./bluesky-adapter')
+    adapters.bluesky = new BlueskyAdapter(bskyId, bskyPw)
+  }
+
+  return adapters
 }
 
+const ADAPTERS: Record<Platform, PlatformAdapter> = buildAdapters()
+
 export function getAdapter(platform: Platform): PlatformAdapter {
+  return ADAPTERS[platform]
+}
+
+// キャスト固有の認証情報でアダプターを取得
+export function getAdapterWithCredentials(
+  platform: Platform,
+  credentials?: { identifier?: string; appPassword?: string }
+): PlatformAdapter {
+  if (platform === 'bluesky' && credentials?.identifier && credentials?.appPassword) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { BlueskyAdapter } = require('./bluesky-adapter')
+    return new BlueskyAdapter(credentials.identifier, credentials.appPassword)
+  }
   return ADAPTERS[platform]
 }
 
