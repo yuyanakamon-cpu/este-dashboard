@@ -43,6 +43,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ credentials: data })
       }
 
+      case 'check_id':
       case 'verify': {
         const { login_id, password } = body
         const { data, error } = await supabase
