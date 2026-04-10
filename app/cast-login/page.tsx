@@ -38,7 +38,7 @@ export default function CastLoginPage() {
       // セッションに保存
       sessionStorage.setItem('cast_auth', JSON.stringify({
         cast_id: data.cast_id,
-        cast_name: data.cast_name,
+        display_name: data.display_name,
         sns_status: data.sns_status,
       }))
 
@@ -72,7 +72,7 @@ export default function CastLoginPage() {
               type="text"
               value={loginId}
               onChange={e => { setLoginId(e.target.value); setError('') }}
-              placeholder="例: sakura_2847"
+              placeholder="例: 00001"
               autoComplete="username"
               autoCapitalize="none"
               className="w-full text-base border border-stone-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-rose-400 transition-colors text-stone-700 placeholder-stone-300 bg-white"

@@ -138,8 +138,8 @@ export default function CastCredentials({ onUpdate }: Props) {
           <button onClick={fetch_} className="flex items-center gap-1.5 text-xs text-stone-400 border border-stone-200 px-3 py-1.5 rounded-lg hover:bg-stone-50">
             <RefreshCw size={12} />更新
           </button>
-          <a href="/cast-login" target="_blank" className="text-xs text-rose-500 border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-50">
-            キャストログイン画面 →
+          <a href="/cast-login/setup" target="_blank" className="text-xs text-rose-500 border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-50">
+            初回セットアップ画面 →
           </a>
         </div>
         <button onClick={handleIssueNew} disabled={issuing}
@@ -239,13 +239,13 @@ export default function CastCredentials({ onUpdate }: Props) {
                   <div className="bg-rose-50 rounded-xl p-4 border border-rose-100">
                     <p className="text-[11px] text-rose-500 font-medium mb-2">📱 女の子に送る内容</p>
                     <div className="bg-white rounded-lg p-3 font-mono text-xs text-stone-800 leading-relaxed border border-rose-100 whitespace-pre-wrap">{`ログインID: ${auth.login_id}
-URL: ${typeof window !== 'undefined' ? window.location.origin : ''}/cast-login/setup
+URL: https://postmagick.com/cast-login/setup
 
 ↑のURLを開いてIDを入力し、
 自分で在籍名とパスワードを設定してください`}</div>
                     <button
                       onClick={() => copy(
-                        `ログインID: ${auth.login_id}\nURL: ${window.location.origin}/cast-login/setup\n\n↑のURLを開いてIDを入力し、自分で在籍名とパスワードを設定してください`,
+                        `ログインID: ${auth.login_id}\nURL: https://postmagick.com/cast-login/setup\n\n↑のURLを開いてIDを入力し、自分で在籍名とパスワードを設定してください`,
                         `msg-${auth.cast_id}`
                       )}
                       className="mt-2.5 flex items-center gap-1.5 text-xs text-rose-600 font-medium">
