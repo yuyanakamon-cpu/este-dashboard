@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Bell, Settings, Zap, CalendarClock } from 'lucide-react'
+import { LayoutDashboard, Bell, Settings, CalendarClock } from 'lucide-react'
 import { CASTS } from '@/lib/mock-data'
 import clsx from 'clsx'
 
@@ -10,18 +10,18 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed left-0 top-0 h-full bg-white border-r border-stone-100 flex flex-col z-40"
-      style={{ width: 'var(--sidebar-width)' }}>
+    <aside className="app-sidebar fixed left-0 top-0 h-full flex flex-col z-40"
+      style={{ width: 'var(--sidebar-width)', background: 'var(--bg-card)', borderRight: '1px solid var(--border)' }}>
 
       {/* ロゴ */}
-      <div className="px-5 py-5 border-b border-stone-100">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-rose-500 flex items-center justify-center">
-            <Zap size={14} className="text-white" />
-          </div>
+      <div className="px-5 py-6" style={{ borderBottom: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-3">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--burgundy)' }}>
+            <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" />
+          </svg>
           <div>
-            <div className="text-sm font-semibold tracking-tight text-stone-800">ESTE SNS</div>
-            <div className="text-[10px] text-stone-400 leading-none">自動運用システム</div>
+            <div className="font-serif text-base font-semibold tracking-[0.12em]" style={{ color: 'var(--burgundy)' }}>Esté</div>
+            <div className="text-[9px] tracking-[0.24em] uppercase font-semibold" style={{ color: 'var(--text-3)' }}>SNS Atelier</div>
           </div>
         </div>
       </div>
@@ -32,34 +32,36 @@ export default function Sidebar() {
           <NavItem href="/master/dashboard" icon={<LayoutDashboard size={15} />} label="マスター管理" active={pathname === '/master/dashboard'} />
         </div>
 
-        {/* キャスト一覧 */}
-        <div className="px-4 pt-4 pb-1">
-          <div className="text-[10px] font-medium text-stone-400 uppercase tracking-wider mb-2">キャスト</div>
+        <div className="px-4 pt-5 pb-1">
+          <div className="text-[9px] font-semibold tracking-[0.24em] uppercase" style={{ color: 'var(--text-3)' }}>Cast</div>
         </div>
         <div className="px-3 space-y-0.5">
-          {CASTS.map((cast) => (
-            <Link
-              key={cast.id}
-              href={`/cast/${cast.id}`}
-              className={clsx(
-                'flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-sm group',
-                pathname === `/cast/${cast.id}`
-                  ? 'bg-rose-50 text-rose-700'
-                  : 'text-stone-600 hover:bg-stone-50'
-              )}
-            >
-              <div className={clsx('w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0', cast.avatar_color)}>
-                {cast.avatar_initial}
-              </div>
-              <span className="flex-1 truncate font-medium text-[13px]">{cast.name}</span>
-              <span className={clsx('status-dot shrink-0', `status-${cast.status}`)} />
-            </Link>
-          ))}
+          {CASTS.map((cast) => {
+            const active = pathname === `/cast/${cast.id}`
+            return (
+              <Link
+                key={cast.id}
+                href={`/cast/${cast.id}`}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-pd transition-all group text-sm"
+                style={{
+                  background: active ? 'rgba(114,47,55,0.06)' : 'transparent',
+                  color: active ? 'var(--burgundy)' : 'var(--text-2)',
+                  borderLeft: active ? '2px solid var(--gold)' : '2px solid transparent',
+                }}
+              >
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-serif font-semibold shrink-0"
+                     style={{ background: active ? 'var(--gold-bg)' : 'var(--bg-soft)', color: active ? 'var(--gold-deep)' : 'var(--text-2)' }}>
+                  {cast.avatar_initial}
+                </div>
+                <span className="flex-1 truncate font-medium text-[13px]">{cast.name}</span>
+                <span className={clsx('pd-status-dot shrink-0', `status-${cast.status}`)} />
+              </Link>
+            )
+          })}
         </div>
 
-        {/* ツール */}
         <div className="px-4 pt-5 pb-1">
-          <div className="text-[10px] font-medium text-stone-400 uppercase tracking-wider mb-2">ツール</div>
+          <div className="text-[9px] font-semibold tracking-[0.24em] uppercase" style={{ color: 'var(--text-3)' }}>Tools</div>
         </div>
         <div className="px-3 space-y-0.5">
           <NavItem href="/scheduler" icon={<CalendarClock size={15} />} label="スケジューラー" active={pathname === '/scheduler'} />
@@ -69,8 +71,8 @@ export default function Sidebar() {
       </nav>
 
       {/* フッター */}
-      <div className="px-4 py-3 border-t border-stone-100">
-        <div className="text-[10px] text-stone-400 text-center">v1.0.0 — 2026.04</div>
+      <div className="px-4 py-3" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="text-[10px] text-center tracking-[0.16em] uppercase font-medium" style={{ color: 'var(--text-3)' }}>v1.0 — 2026</div>
       </div>
     </aside>
   )
@@ -80,10 +82,13 @@ function NavItem({ href, icon, label, active }: {
   href: string; icon: React.ReactNode; label: string; active: boolean
 }) {
   return (
-    <Link href={href} className={clsx(
-      'flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-[13px] font-medium',
-      active ? 'bg-rose-50 text-rose-700' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'
-    )}>
+    <Link href={href}
+      className="flex items-center gap-2.5 px-2.5 py-2 rounded-pd transition-all text-[13px] font-medium"
+      style={{
+        background: active ? 'rgba(114,47,55,0.06)' : 'transparent',
+        color: active ? 'var(--burgundy)' : 'var(--text-2)',
+        borderLeft: active ? '2px solid var(--gold)' : '2px solid transparent',
+      }}>
       {icon}
       <span className="flex-1">{label}</span>
     </Link>

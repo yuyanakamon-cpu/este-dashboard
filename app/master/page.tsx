@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Zap, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 
 const SESSION_KEY = 'este_master_auth'
 const MASTER_PASSWORD = process.env.NEXT_PUBLIC_MASTER_PASSWORD || 'este2026'
@@ -34,72 +34,77 @@ export default function MasterLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-      <div className={shake ? 'w-full max-w-sm animate-shake' : 'w-full max-w-sm'}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
+      <div className={`w-full max-w-md ${shake ? 'animate-shake' : 'animate-fade-in'}`}>
+        {/* ブランド */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-rose-500 flex items-center justify-center mb-3 shadow-sm">
-            <Zap size={22} className="text-white" />
+          <svg className="w-9 h-9 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" style={{ color: 'var(--burgundy)' }}>
+            <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" />
+          </svg>
+          <div className="font-serif text-3xl font-semibold tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>
+            Esté Premium
           </div>
-          <div className="text-lg font-semibold text-stone-800 tracking-tight">ESTE SNS</div>
-          <div className="text-xs text-stone-400 mt-0.5">管理者ログイン</div>
+          <div className="text-[9px] font-semibold tracking-[0.4em] uppercase mt-2" style={{ color: 'var(--text-3)' }}>
+            Cast SNS Atelier
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-stone-100 p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-5">
-            <Lock size={14} className="text-stone-400" />
-            <span className="text-sm font-medium text-stone-600">マスター管理画面</span>
+        {/* フォーム */}
+        <form onSubmit={handleSubmit} className="pd-card-feature p-7">
+          <div className="font-serif text-lg font-semibold text-center mb-6 tracking-[0.06em]" style={{ color: 'var(--burgundy)' }}>
+            Master Access
           </div>
 
           <div className="mb-4">
-            <label className="text-xs font-medium text-stone-500 block mb-1.5">パスワード</label>
+            <label className="pd-label">パスワード</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={e => { setPassword(e.target.value); setError(false) }}
-                placeholder="パスワードを入力"
+                placeholder="••••••••"
                 autoFocus
-                className="w-full text-sm border border-stone-200 rounded-xl px-4 py-2.5 pr-10 focus:outline-none focus:border-rose-300 transition-colors text-stone-700 placeholder-stone-300"
+                className="pd-input pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-300 hover:text-stone-500 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                style={{ color: 'var(--text-3)' }}
+                aria-label={showPassword ? 'パスワードを隠す' : 'パスワードを表示'}
               >
-                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {error && (
-              <div className="flex items-center gap-1.5 mt-2">
-                <AlertCircle size={12} className="text-red-500" />
-                <span className="text-xs text-red-500">パスワードが違います</span>
+              <div className="flex items-center gap-1.5 mt-2.5">
+                <AlertCircle size={12} style={{ color: 'var(--rose-status)' }} />
+                <span className="text-xs" style={{ color: 'var(--rose-status)' }}>
+                  パスワードが違います
+                </span>
               </div>
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={!password}
-            className="w-full bg-rose-500 text-white text-sm font-medium py-2.5 rounded-xl hover:bg-rose-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
-          >
-            ログイン
+          <button type="submit" disabled={!password} className="pd-btn pd-btn-primary w-full mt-2 disabled:opacity-40 disabled:cursor-not-allowed" style={{ fontFamily: 'var(--f-serif)', fontSize: '14px', letterSpacing: '0.18em', textTransform: 'none' }}>
+            Sign In
           </button>
         </form>
 
-        <p className="text-center text-[11px] text-stone-300 mt-5">
+        <div className="text-center mt-6 text-[10px] tracking-[0.18em] uppercase" style={{ color: 'var(--text-3)' }}>
           このページはオーナー専用です
-        </p>
+        </div>
       </div>
 
-      <style jsx global>{`
+      <style jsx>{`
         @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          20%       { transform: translateX(-8px); }
-          40%       { transform: translateX(8px); }
-          60%       { transform: translateX(-5px); }
-          80%       { transform: translateX(5px); }
+          0%, 100% { transform: translateX(0) }
+          20% { transform: translateX(-8px) }
+          40% { transform: translateX(8px) }
+          60% { transform: translateX(-6px) }
+          80% { transform: translateX(6px) }
         }
-        .animate-shake { animation: shake 0.5s ease-in-out; }
+        .animate-shake { animation: shake 0.5s ease both; }
       `}</style>
     </div>
   )

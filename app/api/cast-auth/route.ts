@@ -109,7 +109,6 @@ export async function POST(req: Request) {
 
       case 'update_sns': {
         const { cast_id, platform, connected, username } = body
-        // Fetch current sns_status to merge (ignore fetch error — treat as empty)
         const { data: current } = await supabase
           .from('cast_auth')
           .select('sns_status')
@@ -128,6 +127,50 @@ export async function POST(req: Request) {
           throw new Error(error.message)
         }
         return NextResponse.json({ success: true })
+      }
+
+      // SNS API認証情報の保存（暗号化なし・Supabase RLS依存）
+      case 'update_sns_credentials': {
+        const { cast_id, platform, credentials } = body
+        const { data: current } = await supabase
+          .from('cast_auth')
+          .select('sns_credentials, sns_status')
+          .eq('cast_id', cast_id)
+          .single()
+
+        // 認証情報を更新
+        const sns_credentials = {
+          ...(current?.sns_credentials ?? {}),
+          [platform]: credentials,
+        }
+        // sns_statusも同時に更新（ユーザー名反映）
+        const sns_status = {
+          ...(current?.sns_status ?? {}),
+          [platform]: {
+            connected: !!credentials,
+            username: credentials?.username ?? credentials?.identifier ?? credentials?.igUserId ?? '',
+            connected_at: credentials ? new Date().toISOString() : null,
+          },
+        }
+
+        const { error } = await supabase
+          .from('cast_auth')
+          .update({ sns_credentials, sns_status })
+          .eq('cast_id', cast_id)
+        if (error) throw new Error(error.message)
+        return NextResponse.json({ success: true })
+      }
+
+      // SNS API認証情報の取得（サーバーサイドのみで使用）
+      case 'get_sns_credentials': {
+        const { cast_id } = body
+        const { data, error } = await supabase
+          .from('cast_auth')
+          .select('sns_credentials')
+          .eq('cast_id', cast_id)
+          .single()
+        if (error) throw new Error(error.message)
+        return NextResponse.json({ credentials: data?.sns_credentials ?? {} })
       }
 
       case 'delete': {

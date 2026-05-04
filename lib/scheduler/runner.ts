@@ -166,9 +166,18 @@ export async function runQueue(options?: { dryRun?: boolean }): Promise<RunResul
 // ─────────────────────────────────────────────
 // 全プラットフォームに投稿
 // ─────────────────────────────────────────────
-async function postToAllPlatforms(post: ScheduledPost): Promise<PlatformResult[]> {
+async function postToAllPlatforms(
+  post: ScheduledPost,
+  credentials?: Record<string, unknown>,
+): Promise<PlatformResult[]> {
   const results = await Promise.allSettled(
-    post.platforms.map(platform => getAdapter(platform).post(post.content))
+    post.platforms.map(platform => {
+      if (credentials) {
+        const { getAdapterWithCredentials } = require('@/lib/platforms/adapter')
+        return getAdapterWithCredentials(platform, credentials).post(post.content)
+      }
+      return getAdapter(platform).post(post.content)
+    })
   )
 
   return results.map((result, i) => {
@@ -199,9 +208,9 @@ function buildLog(post: ScheduledPost, result: PlatformResult): PostLog {
 }
 
 // ─────────────────────────────────────────────
-// 単一投稿を即時実行
+// 単一投稿を即時実行（Supabaseからキャスト認証情報を取得）
 // ─────────────────────────────────────────────
-export async function runSingle(postId: string): Promise<PlatformResult[]> {
+export async function runSingle(postId: string, castId?: string): Promise<PlatformResult[]> {
   const post = QueueStore.getById(postId)
   if (!post) throw new Error(`投稿 ${postId} が見つかりません`)
   if (!post.content) throw new Error('テキストが未設定です')
@@ -219,7 +228,25 @@ export async function runSingle(postId: string): Promise<PlatformResult[]> {
   }
 
   QueueStore.updateStatus(postId, { status: 'processing' })
-  const results = await postToAllPlatforms(post)
+
+  // Supabaseからキャスト固有の認証情報を取得
+  let credentials: Record<string, unknown> | undefined
+  const targetCastId = castId ?? post.cast_id
+  if (targetCastId && targetCastId.startsWith('cast-')) {
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      const { data } = await supabase
+        .from('cast_auth')
+        .select('sns_credentials')
+        .eq('cast_id', targetCastId)
+        .single()
+      if (data?.sns_credentials) credentials = data.sns_credentials
+    } catch {
+      // 認証情報が取得できなければMockにフォールバック
+    }
+  }
+
+  const results = await postToAllPlatforms(post, credentials)
   const allFailed = results.every(r => r.status === 'failed')
 
   QueueStore.updateStatus(postId, {

@@ -72,8 +72,8 @@ export default function SetupPage() {
       <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
         <CheckCircle2 size={32} className="text-green-500" />
       </div>
-      <h2 className="text-lg font-semibold text-stone-800 mb-2">設定完了！</h2>
-      <p className="text-sm text-stone-500">SNS連携ページに移動します...</p>
+      <h2 className="text-lg font-semibold text-ink-1 mb-2">設定完了！</h2>
+      <p className="text-sm text-ink-3">SNS連携ページに移動します...</p>
     </div>
   )
 
@@ -82,12 +82,12 @@ export default function SetupPage() {
   const stepLabels = ['ID確認', '名前入力', 'PW設定']
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-bg to-white flex flex-col">
       <div className="pt-14 pb-5 px-6 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-rose-500 flex items-center justify-center mx-auto mb-3 shadow-sm">
+        <div className="w-12 h-12 rounded-2xl bg-burgundy flex items-center justify-center mx-auto mb-3 shadow-sm">
           <Zap size={20} className="text-white" />
         </div>
-        <h1 className="text-lg font-semibold text-stone-800">初回セットアップ</h1>
+        <h1 className="text-lg font-semibold text-ink-1">初回セットアップ</h1>
       </div>
 
       {/* ステップインジケーター */}
@@ -96,13 +96,13 @@ export default function SetupPage() {
           <div key={i} className="flex items-center gap-2">
             <div className="flex flex-col items-center gap-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                i < stepIdx ? 'bg-green-500 text-white' : i === stepIdx ? 'bg-rose-500 text-white' : 'bg-stone-200 text-stone-400'
+                i < stepIdx ? 'bg-green-500 text-white' : i === stepIdx ? 'bg-burgundy text-white' : 'bg-edge-soft text-ink-3'
               }`}>
                 {i < stepIdx ? '✓' : i + 1}
               </div>
-              <span className={`text-[10px] whitespace-nowrap ${i === stepIdx ? 'text-rose-600 font-medium' : 'text-stone-400'}`}>{label}</span>
+              <span className={`text-[10px] whitespace-nowrap ${i === stepIdx ? 'text-burgundy font-medium' : 'text-ink-3'}`}>{label}</span>
             </div>
-            {i < 2 && <div className="w-8 h-px bg-stone-200 mb-3" />}
+            {i < 2 && <div className="w-8 h-px bg-edge-soft mb-3" />}
           </div>
         ))}
       </div>
@@ -118,18 +118,18 @@ export default function SetupPage() {
                 <p className="text-xs text-amber-600 mt-0.5">例: 00001</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-stone-600 block mb-2">ログインID</label>
+                <label className="text-sm font-medium text-ink-2 block mb-2">ログインID</label>
                 <input type="text" value={loginId} onChange={e => { setLoginId(e.target.value); setError('') }}
                   placeholder="00001" autoCapitalize="none" inputMode="numeric"
-                  className="w-full border border-stone-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-rose-400 transition-colors text-stone-700 placeholder-stone-300 bg-white text-center text-2xl font-mono tracking-widest"
+                  className="w-full border border-edge-soft rounded-2xl px-4 py-3.5 focus:outline-none focus:border-burgundy transition-colors text-ink-1 placeholder-ink-4 bg-white text-center text-2xl font-mono tracking-widest"
                   style={{ fontSize: '24px' }} />
               </div>
               {error && <Err msg={error} />}
               <button type="submit" disabled={!loginId.trim() || loading}
-                className="w-full bg-rose-500 text-white text-base font-medium py-4 rounded-2xl hover:bg-rose-600 active:scale-[0.98] transition-all disabled:opacity-40">
+                className="w-full bg-burgundy text-white text-base font-medium py-4 rounded-2xl hover:bg-burgundy-dark active:scale-[0.98] transition-all disabled:opacity-40">
                 {loading ? '確認中...' : '次へ'}
               </button>
-              <a href="/cast-login" className="flex items-center justify-center gap-1 text-sm text-stone-400 pt-2">
+              <a href="/cast-login" className="flex items-center justify-center gap-1 text-sm text-ink-3 pt-2">
                 <ChevronLeft size={14} />ログイン画面に戻る
               </a>
             </form>
@@ -138,31 +138,31 @@ export default function SetupPage() {
           {/* STEP 2: 在籍名入力 */}
           {step === 'name' && (
             <form onSubmit={handleNameNext} className="space-y-4">
-              <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100">
-                <p className="text-sm text-rose-700 font-medium">ようこそ✨ 在籍名を入力してください</p>
+              <div className="bg-gold-bg rounded-2xl p-4 border border-edge-gold">
+                <p className="text-sm text-burgundy font-medium">ようこそ✨ 在籍名を入力してください</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-stone-600 block mb-1.5">在籍名</label>
+                <label className="text-sm font-medium text-ink-2 block mb-1.5">在籍名</label>
                 <input type="text" value={displayName} onChange={e => { setDisplayName(e.target.value); setError('') }}
                   placeholder="在籍名を入力"
-                  className="w-full border border-stone-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-rose-400 transition-colors text-stone-700 placeholder-stone-300 bg-white"
+                  className="w-full border border-edge-soft rounded-2xl px-4 py-3.5 focus:outline-none focus:border-burgundy transition-colors text-ink-1 placeholder-ink-4 bg-white"
                   style={{ fontSize: '16px' }} />
-                <div className="mt-3 bg-stone-50 rounded-xl p-3.5 border border-stone-100">
-                  <p className="text-xs text-stone-500 font-medium mb-1.5">記入例</p>
-                  <p className="text-xs text-stone-500 leading-relaxed">
-                    ・1店舗 → <span className="text-stone-700 font-medium">〇〇エステ さくら</span><br />
-                    ・2店舗 → <span className="text-stone-700 font-medium">〇〇エステ さくら、△△エステ みお</span><br />
-                    <span className="text-stone-400 text-[11px]">複数店舗は「、」で区切って全部書いてください</span>
+                <div className="mt-3 bg-bg-muted rounded-xl p-3.5 border border-edge">
+                  <p className="text-xs text-ink-3 font-medium mb-1.5">記入例</p>
+                  <p className="text-xs text-ink-3 leading-relaxed">
+                    ・1店舗 → <span className="text-ink-1 font-medium">〇〇エステ さくら</span><br />
+                    ・2店舗 → <span className="text-ink-1 font-medium">〇〇エステ さくら、△△エステ みお</span><br />
+                    <span className="text-ink-3 text-[11px]">複数店舗は「、」で区切って全部書いてください</span>
                   </p>
                 </div>
               </div>
               {error && <Err msg={error} />}
               <button type="submit" disabled={!displayName.trim()}
-                className="w-full bg-rose-500 text-white text-base font-medium py-4 rounded-2xl hover:bg-rose-600 active:scale-[0.98] transition-all disabled:opacity-40">
+                className="w-full bg-burgundy text-white text-base font-medium py-4 rounded-2xl hover:bg-burgundy-dark active:scale-[0.98] transition-all disabled:opacity-40">
                 次へ
               </button>
               <button type="button" onClick={() => { setStep('id'); setError('') }}
-                className="flex items-center justify-center gap-1 w-full text-sm text-stone-400 pt-2">
+                className="flex items-center justify-center gap-1 w-full text-sm text-ink-3 pt-2">
                 <ChevronLeft size={14} />戻る
               </button>
             </form>
@@ -171,32 +171,32 @@ export default function SetupPage() {
           {/* STEP 3: パスワード設定 */}
           {step === 'password' && (
             <form onSubmit={handleSetup} className="space-y-4">
-              <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100">
-                <p className="text-sm text-rose-700 font-medium">在籍名：{displayName}</p>
-                <p className="text-xs text-rose-500 mt-0.5">パスワードを設定してください（6文字以上）</p>
+              <div className="bg-gold-bg rounded-2xl p-4 border border-edge-gold">
+                <p className="text-sm text-burgundy font-medium">在籍名：{displayName}</p>
+                <p className="text-xs text-burgundy mt-0.5">パスワードを設定してください（6文字以上）</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-stone-600 block mb-2">新しいパスワード</label>
+                <label className="text-sm font-medium text-ink-2 block mb-2">新しいパスワード</label>
                 <div className="relative">
                   <input type={showPass ? 'text' : 'password'} value={password}
                     onChange={e => { setPassword(e.target.value); setError('') }}
                     placeholder="6文字以上" autoComplete="new-password"
-                    className="w-full border border-stone-200 rounded-2xl px-4 py-3.5 pr-12 focus:outline-none focus:border-rose-400 transition-colors text-stone-700 placeholder-stone-300 bg-white"
+                    className="w-full border border-edge-soft rounded-2xl px-4 py-3.5 pr-12 focus:outline-none focus:border-burgundy transition-colors text-ink-1 placeholder-ink-4 bg-white"
                     style={{ fontSize: '16px' }} />
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 p-1">
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-3 p-1">
                     {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-stone-600 block mb-2">パスワード確認</label>
+                <label className="text-sm font-medium text-ink-2 block mb-2">パスワード確認</label>
                 <div className="relative">
                   <input type={showConfirm ? 'text' : 'password'} value={confirm}
                     onChange={e => { setConfirm(e.target.value); setError('') }}
                     placeholder="もう一度入力" autoComplete="new-password"
-                    className="w-full border border-stone-200 rounded-2xl px-4 py-3.5 pr-12 focus:outline-none focus:border-rose-400 transition-colors text-stone-700 placeholder-stone-300 bg-white"
+                    className="w-full border border-edge-soft rounded-2xl px-4 py-3.5 pr-12 focus:outline-none focus:border-burgundy transition-colors text-ink-1 placeholder-ink-4 bg-white"
                     style={{ fontSize: '16px' }} />
-                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 p-1">
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-3 p-1">
                     {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
@@ -208,11 +208,11 @@ export default function SetupPage() {
               </div>
               {error && <Err msg={error} />}
               <button type="submit" disabled={!password || !confirm || password !== confirm || loading}
-                className="w-full bg-rose-500 text-white text-base font-medium py-4 rounded-2xl hover:bg-rose-600 active:scale-[0.98] transition-all disabled:opacity-40">
+                className="w-full bg-burgundy text-white text-base font-medium py-4 rounded-2xl hover:bg-burgundy-dark active:scale-[0.98] transition-all disabled:opacity-40">
                 {loading ? '設定中...' : 'パスワードを設定する'}
               </button>
               <button type="button" onClick={() => { setStep('name'); setError('') }}
-                className="flex items-center justify-center gap-1 w-full text-sm text-stone-400 pt-2">
+                className="flex items-center justify-center gap-1 w-full text-sm text-ink-3 pt-2">
                 <ChevronLeft size={14} />戻る
               </button>
             </form>

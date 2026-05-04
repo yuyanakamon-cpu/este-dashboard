@@ -17,7 +17,8 @@
     "nanoid": "^5.1.7",
     "next": "14.2.5",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "react-dom": "^18.3.0",
+    "twitter-api-v2": "^1.29.0"
   },
   "devDependencies": {
     "@types/node": "^20",

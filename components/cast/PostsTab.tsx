@@ -143,22 +143,22 @@ export default function PostsTab({ cast }: PostsTabProps) {
     <div className="space-y-5 animate-slide-up">
 
       {/* AI生成パネル */}
-      <div className="bg-white rounded-2xl border border-stone-100">
-        <div className="flex items-center justify-between px-4 md:px-6 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-stone-50">
-          <h3 className="text-sm font-semibold text-stone-700 flex items-center gap-2">
-            <Sparkles size={15} className="text-rose-500" />
+      <div className="bg-white rounded-2xl border border-edge">
+        <div className="flex items-center justify-between px-4 md:px-6 pt-4 md:pt-5 pb-3 md:pb-4 border-b border-edge">
+          <h3 className="text-sm font-semibold text-ink-1 flex items-center gap-2">
+            <Sparkles size={15} className="text-burgundy" />
             AI投稿テキスト生成
           </h3>
-          <div className="flex items-center gap-1 bg-stone-100 p-0.5 rounded-lg">
+          <div className="flex items-center gap-1 bg-bg-soft p-0.5 rounded-lg">
             <button
               onClick={() => setMode('single')}
               className={clsx('text-xs px-3 py-1 rounded-md font-medium transition-all',
-                mode === 'single' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500')}
+                mode === 'single' ? 'bg-white text-ink-1 shadow-sm' : 'text-ink-3')}
             >1案</button>
             <button
               onClick={() => setMode('variations')}
               className={clsx('text-xs px-3 py-1 rounded-md font-medium transition-all',
-                mode === 'variations' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500')}
+                mode === 'variations' ? 'bg-white text-ink-1 shadow-sm' : 'text-ink-3')}
             >3案比較</button>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
 
           {/* プラットフォーム選択 */}
           <div>
-            <div className="text-xs font-medium text-stone-500 mb-2">投稿先プラットフォーム</div>
+            <div className="text-xs font-medium text-ink-3 mb-2">投稿先プラットフォーム</div>
             <div className="flex gap-2 flex-wrap">
               {PLATFORMS.map(p => {
                 const acc = cast.platforms[p]
@@ -181,10 +181,10 @@ export default function PostsTab({ cast }: PostsTabProps) {
                     className={clsx(
                       'flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl border font-medium transition-all',
                       !acc.connected
-                        ? 'border-stone-100 text-stone-300 cursor-not-allowed'
+                        ? 'border-edge text-ink-4 cursor-not-allowed'
                         : selected
-                          ? 'border-rose-300 bg-rose-50 text-rose-700'
-                          : 'border-stone-200 text-stone-500 hover:border-stone-300'
+                          ? 'border-burgundy bg-gold-bg text-burgundy'
+                          : 'border-edge-soft text-ink-3 hover:border-burgundy'
                     )}
                   >
                     <span>{PLATFORM_ICONS[p]}</span>
@@ -201,9 +201,9 @@ export default function PostsTab({ cast }: PostsTabProps) {
 
           {/* 文体スタイル選択 */}
           <div>
-            <div className="text-xs font-medium text-stone-500 mb-2 flex items-center gap-1.5">
+            <div className="text-xs font-medium text-ink-3 mb-2 flex items-center gap-1.5">
               文体スタイル
-              <span className="text-[10px] text-stone-300 font-normal">（ベンチマーク7アカウント学習済み）</span>
+              <span className="text-[10px] text-ink-4 font-normal">（ベンチマーク7アカウント学習済み）</span>
             </div>
             <div className="flex gap-1.5 flex-wrap">
               {STYLE_KEYS.map(style => (
@@ -213,8 +213,8 @@ export default function PostsTab({ cast }: PostsTabProps) {
                   className={clsx(
                     'text-[11px] px-2.5 py-1 rounded-lg border font-medium transition-all',
                     writingStyle === style
-                      ? 'border-rose-300 bg-rose-50 text-rose-700'
-                      : 'border-stone-200 text-stone-400 hover:border-stone-300 hover:text-stone-600'
+                      ? 'border-burgundy bg-gold-bg text-burgundy'
+                      : 'border-edge-soft text-ink-3 hover:border-burgundy hover:text-ink-2'
                   )}
                 >
                   {WRITING_STYLE_LABELS[style]}
@@ -225,7 +225,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
 
           {/* 投稿の種類 */}
           <div>
-            <div className="text-xs font-medium text-stone-500 mb-2">投稿の種類を選んで生成</div>
+            <div className="text-xs font-medium text-ink-3 mb-2">投稿の種類を選んで生成</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {POST_TYPES.map(type => (
                 <button
@@ -253,7 +253,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
           <div>
             <button
               onClick={() => setShowCustomNote(!showCustomNote)}
-              className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-ink-3 hover:text-ink-2 transition-colors"
             >
               {showCustomNote ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
               追加の指示を入れる（任意）
@@ -264,7 +264,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
                 onChange={e => setCustomNote(e.target.value)}
                 placeholder="例：「今日は空き枠が2つ」「夕方限定のサービスをアピール」「少し甘えたトーンで」など..."
                 rows={2}
-                className="mt-2 w-full text-xs border border-stone-200 rounded-xl p-3 resize-none focus:outline-none focus:border-rose-300 transition-colors text-stone-600 placeholder-stone-300"
+                className="mt-2 w-full text-xs border border-edge-soft rounded-xl p-3 resize-none focus:outline-none focus:border-burgundy transition-colors text-ink-2 placeholder-ink-4"
               />
             )}
           </div>
@@ -287,12 +287,12 @@ export default function PostsTab({ cast }: PostsTabProps) {
                 {[0, 1, 2].map(i => (
                   <span
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-bounce"
+                    className="w-1.5 h-1.5 rounded-full bg-burgundy animate-bounce"
                     style={{ animationDelay: `${i * 150}ms` }}
                   />
                 ))}
               </div>
-              <span className="text-xs text-stone-500">
+              <span className="text-xs text-ink-3">
                 {cast.name}らしい集客テキストを生成中...
               </span>
             </div>
@@ -301,7 +301,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
           {/* 3案表示 */}
           {mode === 'variations' && texts.length > 0 && (
             <div className="space-y-3">
-              <div className="text-xs font-medium text-stone-500">3パターン生成完了（甘え系・強気かわいい系・ほのぼの日常系）</div>
+              <div className="text-xs font-medium text-ink-3">3パターン生成完了（甘え系・強気かわいい系・ほのぼの日常系）</div>
               {texts.map((t, i) => (
                 <div
                   key={i}
@@ -309,32 +309,32 @@ export default function PostsTab({ cast }: PostsTabProps) {
                   className={clsx(
                     'relative p-4 rounded-xl border-2 cursor-pointer transition-all',
                     selectedVariation === i
-                      ? 'border-rose-400 bg-rose-50'
-                      : 'border-stone-100 hover:border-stone-300 bg-white'
+                      ? 'border-burgundy bg-gold-bg'
+                      : 'border-edge hover:border-burgundy bg-white'
                   )}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className={clsx('text-[10px] font-semibold px-2 py-0.5 rounded',
-                      ['bg-rose-100 text-rose-700', 'bg-sky-100 text-sky-700', 'bg-purple-100 text-purple-700'][i]
+                      ['bg-gold-bg text-burgundy', 'bg-sky-100 text-sky-700', 'bg-purple-100 text-purple-700'][i]
                     )}>
                       {['甘え系', '強気かわいい系', 'ほのぼの日常系'][i]}
                     </span>
                     <div className="flex items-center gap-2">
                       {selectedVariation === i && (
-                        <span className="text-[10px] text-rose-600 font-medium flex items-center gap-1">
+                        <span className="text-[10px] text-burgundy font-medium flex items-center gap-1">
                           <CheckCircle2 size={10} />選択中
                         </span>
                       )}
                       <button
                         onClick={e => { e.stopPropagation(); handleCopy(t, i) }}
-                        className="text-stone-300 hover:text-stone-500 transition-colors"
+                        className="text-ink-4 hover:text-ink-3 transition-colors"
                       >
                         {copiedIdx === i ? <CheckCircle2 size={13} className="text-green-500" /> : <Copy size={13} />}
                       </button>
                     </div>
                   </div>
-                  <p className="text-xs text-stone-600 whitespace-pre-line leading-relaxed">{t}</p>
-                  <div className="mt-2 text-[10px] text-stone-400">{t.length}文字</div>
+                  <p className="text-xs text-ink-2 whitespace-pre-line leading-relaxed">{t}</p>
+                  <div className="mt-2 text-[10px] text-ink-3">{t.length}文字</div>
                 </div>
               ))}
             </div>
@@ -343,13 +343,13 @@ export default function PostsTab({ cast }: PostsTabProps) {
       </div>
 
       {/* 投稿エディタ */}
-      <div className="bg-white rounded-2xl border border-stone-100 p-4 md:p-6">
+      <div className="bg-white rounded-2xl border border-edge p-4 md:p-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-stone-700">投稿エディタ</h3>
+          <h3 className="text-sm font-semibold text-ink-1">投稿エディタ</h3>
           {postContent && (
             <button
               onClick={() => { setPostContent(''); setPostResult(null); clear() }}
-              className="text-xs text-stone-400 hover:text-stone-600 flex items-center gap-1 transition-colors"
+              className="text-xs text-ink-3 hover:text-ink-2 flex items-center gap-1 transition-colors"
             >
               <RefreshCw size={11} />クリア
             </button>
@@ -361,12 +361,12 @@ export default function PostsTab({ cast }: PostsTabProps) {
           onChange={e => setPostContent(e.target.value)}
           placeholder="AI生成ボタンを押すか、直接テキストを入力してください..."
           rows={6}
-          className="w-full text-sm border border-stone-200 rounded-xl p-4 resize-none focus:outline-none focus:border-rose-300 transition-colors text-stone-700 placeholder-stone-300 leading-relaxed"
+          className="w-full text-sm border border-edge-soft rounded-xl p-4 resize-none focus:outline-none focus:border-burgundy transition-colors text-ink-1 placeholder-ink-4 leading-relaxed"
         />
 
         {/* 文字数 */}
         <div className="flex items-center gap-3 mt-2">
-          <span className={clsx('text-xs font-medium', postContent.length > 140 ? 'text-amber-600' : 'text-stone-400')}>
+          <span className={clsx('text-xs font-medium', postContent.length > 140 ? 'text-amber-600' : 'text-ink-3')}>
             {postContent.length}文字
           </span>
           {postContent.length > 0 && (
@@ -403,18 +403,18 @@ export default function PostsTab({ cast }: PostsTabProps) {
         {/* 投稿モード切替 + アクションボタン */}
         <div className="mt-3 space-y-3">
           {/* モード切替タブ */}
-          <div className="flex gap-1 bg-stone-100 p-0.5 rounded-xl w-fit">
+          <div className="flex gap-1 bg-bg-soft p-0.5 rounded-xl w-fit">
             <button
               onClick={() => setScheduleMode('now')}
               className={clsx('text-xs px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5',
-                scheduleMode === 'now' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500')}
+                scheduleMode === 'now' ? 'bg-white text-ink-1 shadow-sm' : 'text-ink-3')}
             >
               <Send size={11} />今すぐ投稿
             </button>
             <button
               onClick={() => setScheduleMode('schedule')}
               className={clsx('text-xs px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5',
-                scheduleMode === 'schedule' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500')}
+                scheduleMode === 'schedule' ? 'bg-white text-ink-1 shadow-sm' : 'text-ink-3')}
             >
               <CalendarClock size={11} />予約投稿
             </button>
@@ -423,13 +423,13 @@ export default function PostsTab({ cast }: PostsTabProps) {
           {/* 予約日時ピッカー */}
           {scheduleMode === 'schedule' && (
             <div>
-              <label className="text-xs text-stone-500 mb-1 block">投稿日時</label>
+              <label className="text-xs text-ink-3 mb-1 block">投稿日時</label>
               <input
                 type="datetime-local"
                 value={scheduledAt}
                 onChange={e => setScheduledAt(e.target.value)}
                 min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
-                className="text-sm border border-stone-200 rounded-xl px-3 py-2 focus:outline-none focus:border-rose-300 transition-colors text-stone-700 w-full md:w-auto"
+                className="text-sm border border-edge-soft rounded-xl px-3 py-2 focus:outline-none focus:border-burgundy transition-colors text-ink-1 w-full md:w-auto"
               />
             </div>
           )}
@@ -439,7 +439,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
             {postContent && (
               <button
                 onClick={() => handleCopy(postContent, -1)}
-                className="flex items-center gap-1.5 text-xs text-stone-500 border border-stone-200 px-3 py-1.5 rounded-xl hover:bg-stone-50 transition-all"
+                className="flex items-center gap-1.5 text-xs text-ink-3 border border-edge-soft px-3 py-1.5 rounded-xl hover:bg-bg-muted transition-all"
               >
                 {copiedIdx === -1 ? <CheckCircle2 size={12} className="text-green-500" /> : <Copy size={12} />}
                 コピー
@@ -448,7 +448,7 @@ export default function PostsTab({ cast }: PostsTabProps) {
             <button
               onClick={handlePost}
               disabled={!postContent || selectedPlatforms.length === 0 || isPosting || (scheduleMode === 'schedule' && !scheduledAt)}
-              className="flex items-center gap-2 text-sm bg-rose-500 text-white px-5 py-2 rounded-xl font-medium hover:bg-rose-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
+              className="flex items-center gap-2 text-sm bg-burgundy text-white px-5 py-2 rounded-xl font-medium hover:bg-burgundy-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
             >
               {isPosting
                 ? <Loader2 size={13} className="animate-spin" />
@@ -461,11 +461,11 @@ export default function PostsTab({ cast }: PostsTabProps) {
 
       {/* 投稿キュー */}
       <div>
-        <h3 className="text-sm font-semibold text-stone-600 mb-3">本日の投稿キュー</h3>
+        <h3 className="text-sm font-semibold text-ink-2 mb-3">本日の投稿キュー</h3>
         <div className="space-y-2">
           {cast.posts.map(post => (
-            <div key={post.id} className="bg-white rounded-xl border border-stone-100 p-4 flex items-start gap-4">
-              <div className="text-xs font-mono text-stone-400 w-12 shrink-0 pt-0.5">
+            <div key={post.id} className="bg-white rounded-xl border border-edge p-4 flex items-start gap-4">
+              <div className="text-xs font-mono text-ink-3 w-12 shrink-0 pt-0.5">
                 {new Date(post.scheduled_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
               </div>
               <div className="flex-1 min-w-0">
@@ -474,24 +474,24 @@ export default function PostsTab({ cast }: PostsTabProps) {
                     {POST_TYPE_LABELS[post.type]}
                   </span>
                   {post.platforms.map(p => (
-                    <span key={p} className="text-[10px] bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded">
+                    <span key={p} className="text-[10px] bg-bg-soft text-ink-3 px-1.5 py-0.5 rounded">
                       {PLATFORM_ICONS[p as Platform]}
                     </span>
                   ))}
                 </div>
-                <p className="text-xs text-stone-600 whitespace-pre-line line-clamp-3 leading-relaxed">{post.content}</p>
+                <p className="text-xs text-ink-2 whitespace-pre-line line-clamp-3 leading-relaxed">{post.content}</p>
                 {post.status === 'posted' && (
                   <div className="flex gap-4 mt-2">
-                    <span className="text-[10px] text-stone-400">♥ {post.likes}</span>
-                    <span className="text-[10px] text-stone-400">🔁 {post.reposts}</span>
-                    <span className="text-[10px] text-stone-400">💬 {post.replies}</span>
+                    <span className="text-[10px] text-ink-3">♥ {post.likes}</span>
+                    <span className="text-[10px] text-ink-3">🔁 {post.reposts}</span>
+                    <span className="text-[10px] text-ink-3">💬 {post.replies}</span>
                   </div>
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <PostStatusBadge status={post.status} />
                 {post.status !== 'posted' && (
-                  <button className="text-stone-300 hover:text-stone-500 transition-colors">
+                  <button className="text-ink-4 hover:text-ink-3 transition-colors">
                     <Edit3 size={13} />
                   </button>
                 )}
@@ -508,7 +508,7 @@ function PostStatusBadge({ status }: { status: string }) {
   const m: Record<string, [React.ReactNode, string, string]> = {
     posted:    [<CheckCircle2 key="p" size={10} />, '投稿済', 'text-green-600'],
     scheduled: [<Clock        key="s" size={10} />, '予定',   'text-sky-600'],
-    draft:     [<FileText     key="d" size={10} />, '下書き', 'text-stone-500'],
+    draft:     [<FileText     key="d" size={10} />, '下書き', 'text-ink-3'],
     failed:    [<AlertCircle  key="f" size={10} />, '失敗',   'text-red-500'],
   }
   const [icon, label, cls] = m[status] || m['draft']

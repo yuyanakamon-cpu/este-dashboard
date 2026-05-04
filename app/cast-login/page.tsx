@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Zap, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 
 export default function CastLoginPage() {
   const router = useRouter()
@@ -17,7 +17,6 @@ export default function CastLoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
       const res = await fetch('/api/cast-auth', {
         method: 'POST',
@@ -25,7 +24,6 @@ export default function CastLoginPage() {
         body: JSON.stringify({ action: 'login', login_id: loginId.trim(), password }),
       })
       const data = await res.json()
-
       if (!res.ok) {
         setError(data.error ?? 'ログインに失敗しました')
         setShake(true)
@@ -34,17 +32,12 @@ export default function CastLoginPage() {
         setLoading(false)
         return
       }
-
-      // セッションに保存
       sessionStorage.setItem('cast_auth', JSON.stringify({
         cast_id: data.auth.cast_id,
         display_name: data.auth.display_name,
         sns_status: data.auth.sns_status,
       }))
-
-      // SNS接続ページへ
       router.push('/cast-login/sns')
-
     } catch {
       setError('通信エラーが発生しました')
       setLoading(false)
@@ -52,89 +45,84 @@ export default function CastLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
       {/* ヘッダー */}
-      <div className="pt-16 pb-8 px-6 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center mx-auto mb-4 shadow-sm">
-          <Zap size={24} className="text-white" />
+      <div className="pt-16 pb-8 px-6 text-center animate-fade-in">
+        <svg className="w-10 h-10 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" style={{ color: 'var(--burgundy)' }}>
+          <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" />
+        </svg>
+        <div className="font-serif text-3xl font-semibold tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>
+          Esté Premium
         </div>
-        <h1 className="text-xl font-semibold text-stone-800">ESTE SNS</h1>
-        <p className="text-sm text-stone-400 mt-1">セラピストログイン</p>
+        <div className="text-[9px] tracking-[0.4em] uppercase font-semibold mt-2" style={{ color: 'var(--text-3)' }}>
+          Therapist Sign In
+        </div>
       </div>
 
       {/* フォーム */}
       <div className={`flex-1 px-6 ${shake ? 'animate-[shake_0.5s_ease]' : ''}`}>
-        <form onSubmit={handleSubmit} className="max-w-sm mx-auto space-y-4">
-
+        <form onSubmit={handleSubmit} className="pd-card-feature max-w-sm mx-auto p-7 space-y-4">
           <div>
-            <label className="text-sm font-medium text-stone-600 block mb-2">ログインID</label>
+            <label className="pd-label">ログインID</label>
             <input
-              type="text"
-              value={loginId}
+              type="text" value={loginId}
               onChange={e => { setLoginId(e.target.value); setError('') }}
               placeholder="例: 00001"
               autoComplete="username"
               autoCapitalize="none"
-              className="w-full text-base border border-stone-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-rose-400 transition-colors text-stone-700 placeholder-stone-300 bg-white"
+              className="pd-input"
               style={{ fontSize: '16px' }}
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-stone-600 block mb-2">パスワード</label>
+            <label className="pd-label">パスワード</label>
             <div className="relative">
               <input
-                type={showPass ? 'text' : 'password'}
-                value={password}
+                type={showPass ? 'text' : 'password'} value={password}
                 onChange={e => { setPassword(e.target.value); setError('') }}
                 placeholder="パスワードを入力"
                 autoComplete="current-password"
-                className="w-full text-base border border-stone-200 rounded-2xl px-4 py-3.5 pr-12 focus:outline-none focus:border-rose-400 transition-colors text-stone-700 placeholder-stone-300 bg-white"
+                className="pd-input pr-12"
                 style={{ fontSize: '16px' }}
               />
-              <button
-                type="button"
-                onClick={() => setShowPass(!showPass)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 p-1"
-              >
+              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 p-1" style={{ color: 'var(--text-3)' }}>
                 {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 rounded-xl border border-red-100">
-              <AlertCircle size={15} className="text-red-500 shrink-0" />
-              <span className="text-sm text-red-600">{error}</span>
+            <div className="flex items-center gap-2 p-3 rounded-pd" style={{ background: 'var(--rose-bg)', border: '1px solid rgba(199,107,107,0.30)' }}>
+              <AlertCircle size={15} style={{ color: 'var(--rose-status)' }} />
+              <span className="text-sm" style={{ color: 'var(--rose-status)' }}>{error}</span>
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={!loginId || !password || loading}
-            className="w-full bg-rose-500 text-white text-base font-medium py-4 rounded-2xl hover:bg-rose-600 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed mt-2"
-          >
-            {loading ? 'ログイン中...' : 'ログイン'}
+          <button type="submit" disabled={!loginId || !password || loading}
+                  className="pd-btn pd-btn-primary w-full disabled:opacity-40"
+                  style={{ fontFamily: 'var(--f-serif)', fontSize: '14px', letterSpacing: '0.18em', textTransform: 'none', padding: '14px' }}>
+            {loading ? 'ログイン中...' : 'Sign In'}
           </button>
 
-          <p className="text-center text-sm text-stone-400 pt-2">
+          <p className="text-center text-sm pt-1" style={{ color: 'var(--text-3)' }}>
             初めてログインする方は
-            <a href="/cast-login/setup" className="text-rose-500 font-medium ml-1">こちら</a>
+            <a href="/cast-login/setup" className="font-medium ml-1" style={{ color: 'var(--burgundy)' }}>こちら</a>
           </p>
         </form>
       </div>
 
-      <p className="text-center text-xs text-stone-300 pb-8">
+      <p className="text-center text-xs pb-8 mt-4 tracking-wider" style={{ color: 'var(--text-3)' }}>
         ログインIDはオーナーから受け取ってください
       </p>
 
       <style jsx global>{`
         @keyframes shake {
-          0%,100%{transform:translateX(0)}
-          20%{transform:translateX(-8px)}
-          40%{transform:translateX(8px)}
-          60%{transform:translateX(-5px)}
-          80%{transform:translateX(5px)}
+          0%,100% { transform: translateX(0) }
+          20% { transform: translateX(-8px) }
+          40% { transform: translateX(8px) }
+          60% { transform: translateX(-5px) }
+          80% { transform: translateX(5px) }
         }
       `}</style>
     </div>

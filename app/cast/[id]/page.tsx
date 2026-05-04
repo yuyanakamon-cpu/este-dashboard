@@ -20,7 +20,7 @@ interface AuthData {
 }
 
 const AVATAR_COLORS = [
-  'bg-rose-100 text-rose-700', 'bg-sky-100 text-sky-700',
+  'bg-gold-bg text-burgundy', 'bg-sky-100 text-sky-700',
   'bg-purple-100 text-purple-700', 'bg-amber-100 text-amber-700',
   'bg-green-100 text-green-700', 'bg-teal-100 text-teal-700',
 ]
@@ -71,13 +71,13 @@ export default function CastPage() {
   }, [router, params.id])
 
   if (!cast) return (
-    <div className="min-h-screen bg-rose-50 flex items-center justify-center">
-      <div className="text-stone-400 text-sm">読み込み中...</div>
+    <div className="min-h-screen bg-gold-bg flex items-center justify-center">
+      <div className="text-ink-3 text-sm">読み込み中...</div>
     </div>
   )
 
   return (
-    <div className="flex min-h-screen bg-stone-50">
+    <div className="flex min-h-screen bg-bg-muted">
       <CastSidebar cast={cast} />
       <main className="flex-1 overflow-auto" style={{ marginLeft: 'var(--sidebar-width)' }}>
         <CastDashboard cast={cast} activeTab={activeTab} onTabChange={setActiveTab} />

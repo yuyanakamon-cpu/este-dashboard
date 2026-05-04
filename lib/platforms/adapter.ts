@@ -3,7 +3,6 @@ import type { PlatformResult } from '@/lib/scheduler/types'
 
 // ─────────────────────────────────────────────
 // プラットフォームアダプター インターフェース
-// 実API接続時はこのインターフェースを実装して差し替えるだけ
 // ─────────────────────────────────────────────
 export interface PlatformAdapter {
   platform: Platform
@@ -22,14 +21,22 @@ export const CHAR_LIMITS: Record<Platform, number> = {
 }
 
 // ─────────────────────────────────────────────
-// ── MOCK アダプター群（APIなしで動作する）──
-// 実際にはログ出力 + ランダムな成功/失敗シミュレーション
+// キャスト固有のSNS認証情報型
 // ─────────────────────────────────────────────
+export interface SnsCredentials {
+  bluesky?: { identifier: string; appPassword: string }
+  x?: { appKey: string; appSecret: string; accessToken: string; accessSecret: string }
+  instagram?: { accessToken: string; igUserId: string }
+  threads?: { accessToken: string; threadsUserId: string }
+}
 
+// ─────────────────────────────────────────────
+// MOCK アダプター（APIなしで動作するシミュレーション）
+// ─────────────────────────────────────────────
 class MockAdapter implements PlatformAdapter {
   constructor(
     public platform: Platform,
-    private successRate = 0.95 // 95%成功率でシミュレート
+    private successRate = 0.95
   ) {}
 
   validate(content: string): { valid: boolean; reason?: string } {
@@ -44,20 +51,13 @@ class MockAdapter implements PlatformAdapter {
   }
 
   async post(content: string, mediaUrl?: string): Promise<PlatformResult> {
-    // 実際のAPIコールをシミュレート（100〜500ms の遅延）
     await new Promise(r => setTimeout(r, 100 + Math.random() * 400))
 
-    // バリデーション
     const validation = this.validate(content)
     if (!validation.valid) {
-      return {
-        platform: this.platform,
-        status: 'failed',
-        error: validation.reason,
-      }
+      return { platform: this.platform, status: 'failed', error: validation.reason }
     }
 
-    // ランダムな成功/失敗
     if (Math.random() > this.successRate) {
       return {
         platform: this.platform,
@@ -66,10 +66,7 @@ class MockAdapter implements PlatformAdapter {
       }
     }
 
-    // 成功
     const mockPostId = `mock_${this.platform}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    const mockUrl = getMockUrl(this.platform, mockPostId)
-
     console.log(`[Mock ${this.platform}] Posted: "${content.slice(0, 50)}..."`)
     if (mediaUrl) console.log(`[Mock ${this.platform}] Media: ${mediaUrl}`)
 
@@ -77,7 +74,7 @@ class MockAdapter implements PlatformAdapter {
       platform: this.platform,
       status: 'sent',
       post_id: mockPostId,
-      url: mockUrl,
+      url: getMockUrl(this.platform, mockPostId),
       sent_at: new Date().toISOString(),
     }
   }
@@ -94,8 +91,7 @@ function getMockUrl(platform: Platform, postId: string): string {
 }
 
 // ─────────────────────────────────────────────
-// アダプターレジストリ
-// ここを切り替えるだけで Mock → Real に移行できる
+// グローバルアダプター（環境変数ベース）
 // ─────────────────────────────────────────────
 function buildAdapters(): Record<Platform, PlatformAdapter> {
   const adapters: Record<Platform, PlatformAdapter> = {
@@ -105,14 +101,49 @@ function buildAdapters(): Record<Platform, PlatformAdapter> {
     instagram: new MockAdapter('instagram'),
   }
 
-  // Bluesky実API: 環境変数があれば切り替え
-  const bskyId = process.env.BLUESKY_IDENTIFIER
-  const bskyPw = process.env.BLUESKY_APP_PASSWORD
-  if (bskyId && bskyPw) {
-    // Dynamic require to avoid import issues on client side
+  // Bluesky
+  if (process.env.BLUESKY_IDENTIFIER && process.env.BLUESKY_APP_PASSWORD) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { BlueskyAdapter } = require('./bluesky-adapter')
-    adapters.bluesky = new BlueskyAdapter(bskyId, bskyPw)
+    adapters.bluesky = new BlueskyAdapter(
+      process.env.BLUESKY_IDENTIFIER,
+      process.env.BLUESKY_APP_PASSWORD,
+    )
+  }
+
+  // X
+  if (
+    process.env.X_APP_KEY && process.env.X_APP_SECRET &&
+    process.env.X_ACCESS_TOKEN && process.env.X_ACCESS_SECRET
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { XAdapter } = require('./x-adapter')
+    adapters.x = new XAdapter(
+      process.env.X_APP_KEY,
+      process.env.X_APP_SECRET,
+      process.env.X_ACCESS_TOKEN,
+      process.env.X_ACCESS_SECRET,
+    )
+  }
+
+  // Instagram
+  if (process.env.INSTAGRAM_ACCESS_TOKEN && process.env.INSTAGRAM_USER_ID) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { InstagramAdapter } = require('./instagram-adapter')
+    adapters.instagram = new InstagramAdapter(
+      process.env.INSTAGRAM_ACCESS_TOKEN,
+      process.env.INSTAGRAM_USER_ID,
+    )
+  }
+
+  // Threads
+  if (process.env.THREADS_ACCESS_TOKEN && process.env.THREADS_USER_ID) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { ThreadsAdapter } = require('./threads-adapter')
+    adapters.threads = new ThreadsAdapter(
+      process.env.THREADS_ACCESS_TOKEN,
+      process.env.THREADS_USER_ID,
+    )
   }
 
   return adapters
@@ -124,22 +155,57 @@ export function getAdapter(platform: Platform): PlatformAdapter {
   return ADAPTERS[platform]
 }
 
+// ─────────────────────────────────────────────
 // キャスト固有の認証情報でアダプターを取得
+// ─────────────────────────────────────────────
 export function getAdapterWithCredentials(
   platform: Platform,
-  credentials?: { identifier?: string; appPassword?: string }
+  credentials?: SnsCredentials,
 ): PlatformAdapter {
-  if (platform === 'bluesky' && credentials?.identifier && credentials?.appPassword) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { BlueskyAdapter } = require('./bluesky-adapter')
-    return new BlueskyAdapter(credentials.identifier, credentials.appPassword)
+  if (!credentials) return ADAPTERS[platform]
+
+  switch (platform) {
+    case 'bluesky': {
+      const c = credentials.bluesky
+      if (c?.identifier && c?.appPassword) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { BlueskyAdapter } = require('./bluesky-adapter')
+        return new BlueskyAdapter(c.identifier, c.appPassword)
+      }
+      break
+    }
+    case 'x': {
+      const c = credentials.x
+      if (c?.appKey && c?.appSecret && c?.accessToken && c?.accessSecret) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { XAdapter } = require('./x-adapter')
+        return new XAdapter(c.appKey, c.appSecret, c.accessToken, c.accessSecret)
+      }
+      break
+    }
+    case 'instagram': {
+      const c = credentials.instagram
+      if (c?.accessToken && c?.igUserId) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { InstagramAdapter } = require('./instagram-adapter')
+        return new InstagramAdapter(c.accessToken, c.igUserId)
+      }
+      break
+    }
+    case 'threads': {
+      const c = credentials.threads
+      if (c?.accessToken && c?.threadsUserId) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { ThreadsAdapter } = require('./threads-adapter')
+        return new ThreadsAdapter(c.accessToken, c.threadsUserId)
+      }
+      break
+    }
   }
+
   return ADAPTERS[platform]
 }
 
 export function getAllAdapters(): Record<Platform, PlatformAdapter> {
   return ADAPTERS
 }
-
-// 実API接続時はここを差し替える
-// ADAPTERS['x'] = new XAdapter(credentials)

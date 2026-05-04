@@ -17,9 +17,9 @@ export default function MasterDashboardPage() {
   }, [router])
 
   return (
-    <div className="flex min-h-screen bg-stone-50">
+    <div className="flex min-h-screen" style={{ background: 'var(--bg)' }}>
       <Sidebar />
-      <main className="flex-1 overflow-auto" style={{ marginLeft: 'var(--sidebar-width)' }}>
+      <main className="app-main flex-1 overflow-auto" style={{ marginLeft: 'var(--sidebar-width)' }}>
         <MasterDashboard />
       </main>
     </div>

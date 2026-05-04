@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESTE SNS — UI 4パターン比較</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Bodoni+Moda:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Inter','Noto Sans JP',sans-serif;background:#1a1916;color:#fff;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ナビゲーション */
+.compare-nav{
+  position:sticky;top:0;z-index:100;background:rgba(20,18,15,0.92);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,0.08);padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px
+}
+.nav-title{font-family:'Playfair Display',serif;font-size:16px;letter-spacing:0.18em;color:#E8C76C;text-transform:uppercase;font-weight:600}
+.pattern-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.pattern-tab{
+  padding:7px 14px;font-size:11px;color:#aaa;cursor:pointer;border-radius:6px;
+  border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);
+  letter-spacing:0.06em;transition:all 200ms;font-family:inherit;font-weight:500
+}
+.pattern-tab.active{background:#E8C76C;color:#1a1916;border-color:#E8C76C;font-weight:600}
+.pattern-tab:hover{border-color:rgba(232,199,108,0.5)}
+
+.intro{padding:32px 24px;max-width:900px;margin:0 auto;text-align:center}
+.intro h1{font-family:'Playfair Display',serif;font-size:32px;letter-spacing:0.04em;margin-bottom:12px;color:#fff}
+.intro p{font-size:14px;color:#aaa;line-height:1.8;letter-spacing:0.02em}
+
+/* パターンカードコンテナ */
+.pattern-section{padding:0 0 60px;display:none}
+.pattern-section.active{display:block}
+.pattern-header{padding:24px;text-align:center}
+.pattern-title{font-family:'Playfair Display',serif;font-size:24px;color:#E8C76C;margin-bottom:8px;letter-spacing:0.04em}
+.pattern-desc{color:#888;font-size:12px;letter-spacing:0.04em;line-height:1.7;max-width:600px;margin:0 auto}
+
+.color-row{display:flex;justify-content:center;gap:8px;margin:20px 0 30px;flex-wrap:wrap}
+.color-chip{display:flex;flex-direction:column;align-items:center;gap:6px}
+.color-swatch{width:48px;height:48px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3),inset 0 0 0 1px rgba(255,255,255,0.08)}
+.color-label{font-size:9px;color:#666;letter-spacing:0.08em;text-transform:uppercase;font-family:'Inter',sans-serif}
+.color-hex{font-family:'JetBrains Mono',monospace;font-size:9px;color:#888}
+
+/* プレビューキャンバス */
+.preview-frame{
+  max-width:1100px;margin:0 auto;padding:0 24px;
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+}
+@media(max-width:760px){.preview-frame{grid-template-columns:1fr}}
+.preview-card{
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.05);
+}
+.preview-label{font-size:10px;color:#666;letter-spacing:0.12em;text-transform:uppercase;text-align:center;padding:8px;font-family:'Inter',sans-serif;background:rgba(255,255,255,0.03);font-weight:600}
+
+/* ============================================================
+   PATTERN A: シャンパンゴールド × アイボリー（クラシックホテル）
+============================================================ */
+.A-bg{background:#F8F4ED;color:#1A1614;font-family:'Inter','Noto Sans JP',sans-serif}
+.A-login{padding:48px 32px;display:flex;flex-direction:column;align-items:center;background:#F8F4ED}
+.A-mark{width:36px;height:36px;color:#B8956A;margin-bottom:14px}
+.A-brand{font-family:'Playfair Display','Noto Serif JP',serif;font-size:28px;font-weight:600;letter-spacing:0.18em;color:#1A1614;margin-bottom:4px}
+.A-sub{font-size:9px;color:#9B8B73;letter-spacing:0.32em;text-transform:uppercase;font-weight:500;margin-bottom:32px}
+.A-form{width:100%;max-width:340px;background:#FFFFFF;border:1px solid rgba(184,149,106,0.18);border-radius:14px;padding:28px 24px;box-shadow:0 12px 32px rgba(184,149,106,0.06)}
+.A-form-title{font-family:'Playfair Display',serif;font-size:16px;color:#1A1614;letter-spacing:0.04em;margin-bottom:20px;text-align:center}
+.A-input-label{font-size:10px;color:#9B8B73;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:6px;display:block;font-weight:500}
+.A-input{width:100%;border:1px solid #E5DFD2;border-radius:8px;padding:11px 14px;font-size:14px;color:#1A1614;background:#FFFAF0;font-family:inherit;margin-bottom:16px}
+.A-btn{width:100%;background:linear-gradient(180deg,#D4B581,#B8956A);color:#1A1614;border:none;padding:13px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 18px rgba(184,149,106,0.25)}
+
+.A-dash{padding:24px;background:#F8F4ED}
+.A-card{background:#FFFFFF;border:1px solid rgba(184,149,106,0.15);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(184,149,106,0.05)}
+.A-stat-label{font-size:10px;color:#9B8B73;letter-spacing:0.16em;text-transform:uppercase;font-weight:500;margin-bottom:8px}
+.A-stat-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:600;color:#1A1614;line-height:1}
+.A-stat-sub{font-size:11px;color:#9B8B73;margin-top:6px;letter-spacing:0.04em}
+.A-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.A-section-title{font-family:'Playfair Display',serif;font-size:14px;color:#1A1614;letter-spacing:0.02em;margin:18px 0 10px}
+.A-section-title::before{content:'';display:inline-block;width:3px;height:13px;background:#B8956A;margin-right:8px;vertical-align:-2px;border-radius:2px}
+.A-list-item{padding:11px 14px;background:#FFFFFF;border:1px solid rgba(184,149,106,0.15);border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#1A1614;margin-bottom:8px}
+.A-badge{font-size:10px;background:#FFFAF0;color:#B8956A;padding:3px 10px;border-radius:20px;letter-spacing:0.06em;border:1px solid rgba(184,149,106,0.3);font-weight:600}
+
+/* ============================================================
+   PATTERN B: パールホワイト × ローズゴールド（パリジェンヌ）
+============================================================ */
+.B-bg{background:#FFFAF7;color:#2B2825;font-family:'Inter','Noto Sans JP',sans-serif}
+.B-login{padding:48px 32px;display:flex;flex-direction:column;align-items:center;background:#FFFAF7}
+.B-mark{width:36px;height:36px;color:#B76E79;margin-bottom:14px}
+.B-brand{font-family:'Cormorant Garamond','Noto Serif JP',serif;font-size:34px;font-weight:600;letter-spacing:0.12em;color:#2B2825;margin-bottom:2px;font-style:italic}
+.B-sub{font-size:9px;color:#A99088;letter-spacing:0.36em;text-transform:uppercase;font-weight:500;margin-bottom:32px}
+.B-form{width:100%;max-width:340px;background:#FFFFFF;border:1px solid rgba(183,110,121,0.16);border-radius:18px;padding:28px 24px;box-shadow:0 12px 36px rgba(183,110,121,0.08)}
+.B-form-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:#2B2825;letter-spacing:0.04em;margin-bottom:20px;text-align:center;font-style:italic}
+.B-input-label{font-size:10px;color:#A99088;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:6px;display:block;font-weight:500}
+.B-input{width:100%;border:1px solid #F0E0DD;border-radius:24px;padding:12px 18px;font-size:14px;color:#2B2825;background:#FFFAF7;font-family:inherit;margin-bottom:16px}
+.B-btn{width:100%;background:linear-gradient(180deg,#D69098,#B76E79);color:#FFFFFF;border:none;padding:14px;border-radius:24px;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;letter-spacing:0.16em;cursor:pointer;box-shadow:0 8px 22px rgba(183,110,121,0.3);font-style:italic}
+
+.B-dash{padding:24px;background:#FFFAF7}
+.B-card{background:#FFFFFF;border:1px solid rgba(183,110,121,0.12);border-radius:18px;padding:20px;box-shadow:0 6px 22px rgba(183,110,121,0.06)}
+.B-stat-label{font-size:10px;color:#A99088;letter-spacing:0.18em;text-transform:uppercase;font-weight:500;margin-bottom:8px}
+.B-stat-value{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;color:#2B2825;line-height:1;font-style:italic}
+.B-stat-sub{font-size:11px;color:#B76E79;margin-top:6px;letter-spacing:0.04em;font-weight:500}
+.B-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.B-section-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:#2B2825;letter-spacing:0.02em;margin:18px 0 10px;font-style:italic}
+.B-list-item{padding:11px 14px;background:#FFFAF7;border:1px solid rgba(183,110,121,0.12);border-radius:14px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#2B2825;margin-bottom:8px}
+.B-badge{font-size:10px;background:#FFEFEC;color:#B76E79;padding:3px 12px;border-radius:20px;letter-spacing:0.06em;font-weight:600}
+
+/* ============================================================
+   PATTERN C: シャンパンベージュ × ジェットブラック（モダンエディトリアル）
+============================================================ */
+.C-bg{background:#F5F0E8;color:#1C1C1C;font-family:'Inter','Noto Sans JP',sans-serif}
+.C-login{padding:48px 32px;display:flex;flex-direction:column;align-items:center;background:#F5F0E8}
+.C-mark{width:36px;height:36px;color:#1C1C1C;margin-bottom:14px}
+.C-brand{font-family:'Bodoni Moda','Noto Serif JP',serif;font-size:30px;font-weight:700;letter-spacing:0.32em;color:#1C1C1C;margin-bottom:6px;text-transform:uppercase}
+.C-sub{font-size:9px;color:#8B7E6C;letter-spacing:0.5em;text-transform:uppercase;font-weight:600;margin-bottom:32px}
+.C-form{width:100%;max-width:340px;background:#FFFFFF;border:1px solid #1C1C1C;border-radius:0;padding:32px 28px}
+.C-form-title{font-family:'Bodoni Moda',serif;font-size:18px;color:#1C1C1C;letter-spacing:0.16em;margin-bottom:24px;text-align:center;text-transform:uppercase;font-weight:700}
+.C-input-label{font-size:9px;color:#1C1C1C;letter-spacing:0.32em;text-transform:uppercase;margin-bottom:8px;display:block;font-weight:700}
+.C-input{width:100%;border:none;border-bottom:1px solid #1C1C1C;border-radius:0;padding:11px 0;font-size:14px;color:#1C1C1C;background:transparent;font-family:inherit;margin-bottom:18px}
+.C-btn{width:100%;background:#1C1C1C;color:#F5F0E8;border:none;padding:15px;border-radius:0;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;cursor:pointer}
+
+.C-dash{padding:24px;background:#F5F0E8}
+.C-card{background:#FFFFFF;border:1px solid rgba(28,28,28,0.15);border-radius:0;padding:22px}
+.C-stat-label{font-size:9px;color:#8B7E6C;letter-spacing:0.32em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.C-stat-value{font-family:'Bodoni Moda',serif;font-size:34px;font-weight:700;color:#1C1C1C;line-height:1}
+.C-stat-sub{font-size:10px;color:#8B7E6C;margin-top:8px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600}
+.C-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.C-section-title{font-family:'Bodoni Moda',serif;font-size:14px;color:#1C1C1C;letter-spacing:0.24em;margin:20px 0 12px;text-transform:uppercase;font-weight:700;border-bottom:1px solid #1C1C1C;padding-bottom:6px}
+.C-list-item{padding:13px 14px;background:#FFFFFF;border:1px solid rgba(28,28,28,0.15);border-radius:0;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#1C1C1C;margin-bottom:6px}
+.C-badge{font-size:9px;background:#1C1C1C;color:#F5F0E8;padding:3px 10px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;border-radius:0}
+
+/* ============================================================
+   PATTERN D: パールホワイト × バーガンディ + ゴールド（ジュエリー）
+============================================================ */
+.D-bg{background:#F8F5F2;color:#1F1A18;font-family:'Inter','Noto Sans JP',sans-serif}
+.D-login{padding:48px 32px;display:flex;flex-direction:column;align-items:center;background:#F8F5F2}
+.D-mark{width:36px;height:36px;color:#722F37;margin-bottom:14px}
+.D-brand{font-family:'Cormorant Garamond','Noto Serif JP',serif;font-size:32px;font-weight:600;letter-spacing:0.18em;color:#722F37;margin-bottom:4px}
+.D-sub{font-size:9px;color:#A89280;letter-spacing:0.4em;text-transform:uppercase;font-weight:600;margin-bottom:32px}
+.D-form{width:100%;max-width:340px;background:#FFFFFF;border:1px solid rgba(212,175,55,0.25);border-radius:12px;padding:28px 24px;box-shadow:0 16px 40px rgba(114,47,55,0.08);position:relative}
+.D-form::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#D4AF37,#722F37,#D4AF37,transparent);border-radius:12px 12px 0 0}
+.D-form-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:#722F37;letter-spacing:0.06em;margin-bottom:22px;text-align:center;font-weight:600}
+.D-input-label{font-size:10px;color:#A89280;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:6px;display:block;font-weight:600}
+.D-input{width:100%;border:1px solid #E8DCD0;border-radius:8px;padding:11px 14px;font-size:14px;color:#1F1A18;background:#FBF9F6;font-family:inherit;margin-bottom:16px}
+.D-btn{width:100%;background:linear-gradient(180deg,#8B3A42,#722F37);color:#FFFFFF;border:none;padding:14px;border-radius:8px;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;letter-spacing:0.18em;cursor:pointer;box-shadow:0 6px 20px rgba(114,47,55,0.25);position:relative}
+
+.D-dash{padding:24px;background:#F8F5F2}
+.D-card{background:#FFFFFF;border:1px solid rgba(114,47,55,0.12);border-radius:12px;padding:20px;box-shadow:0 6px 20px rgba(114,47,55,0.06);position:relative;overflow:hidden}
+.D-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#D4AF37,transparent)}
+.D-stat-label{font-size:10px;color:#A89280;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.D-stat-value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:#722F37;line-height:1}
+.D-stat-sub{font-size:11px;color:#A89280;margin-top:8px;letter-spacing:0.06em}
+.D-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.D-section-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:#722F37;letter-spacing:0.06em;margin:20px 0 12px;font-weight:600}
+.D-section-title::before{content:'';display:inline-block;width:3px;height:14px;background:linear-gradient(180deg,#D4AF37,#722F37);margin-right:10px;vertical-align:-2px;border-radius:2px}
+.D-list-item{padding:11px 14px;background:#FFFFFF;border:1px solid rgba(114,47,55,0.12);border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#1F1A18;margin-bottom:8px}
+.D-badge{font-size:10px;background:#FBF6E6;color:#8B7330;padding:3px 10px;border-radius:20px;letter-spacing:0.06em;border:1px solid rgba(212,175,55,0.4);font-weight:600}
+
+/* シェアコンポーネント */
+.shared-mark-svg{width:100%;height:100%}
+
+/* デバッグ用フッター */
+.choose-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,18,15,0.95);backdrop-filter:blur(20px);border:1px solid rgba(232,199,108,0.3);padding:16px 24px;border-radius:60px;display:flex;align-items:center;gap:16px;box-shadow:0 24px 64px rgba(0,0,0,0.6);z-index:99}
+.choose-label{font-size:11px;color:#aaa;letter-spacing:0.16em;text-transform:uppercase}
+.current-choice{font-family:'Playfair Display',serif;font-size:16px;color:#E8C76C;letter-spacing:0.02em}
+</style>
+</head>
+<body>
+
+<nav class="compare-nav">
+  <div class="nav-title">ESTE SNS — UI Patterns</div>
+  <div class="pattern-tabs">
+    <button class="pattern-tab active" data-pattern="A" onclick="showPattern('A')">A. Champagne Hotel</button>
+    <button class="pattern-tab" data-pattern="B" onclick="showPattern('B')">B. Parisienne Rose</button>
+    <button class="pattern-tab" data-pattern="C" onclick="showPattern('C')">C. Editorial Mono</button>
+    <button class="pattern-tab" data-pattern="D" onclick="showPattern('D')">D. Burgundy Jewelry</button>
+  </div>
+</nav>
+
+<div class="intro">
+  <h1>明るい系・高級感UIの 4方向</h1>
+  <p>ESTE SNS（メンズエステSNS自動運用）の刷新案。<br>
+     上のタブで切り替えて気に入った方向を選んでください。<br>
+     左 = ログイン画面、右 = ダッシュボード（一部）</p>
+</div>
+
+<!-- ============================================================
+     PATTERN A
+============================================================ -->
+<section class="pattern-section active" id="pattern-A">
+  <div class="pattern-header">
+    <div class="pattern-title">A. Champagne Hotel</div>
+    <div class="pattern-desc">アイボリー × シャンパンゴールドの王道ホテルラグジュアリー。Park Hyatt系の落ち着いた高級感。Playfair Displayで歴史と格を演出。</div>
+    <div class="color-row">
+      <div class="color-chip"><div class="color-swatch" style="background:#F8F4ED"></div><span class="color-label">背景</span><span class="color-hex">#F8F4ED</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#FFFFFF"></div><span class="color-label">カード</span><span class="color-hex">#FFFFFF</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#B8956A"></div><span class="color-label">ゴールド</span><span class="color-hex">#B8956A</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#1A1614"></div><span class="color-label">テキスト</span><span class="color-hex">#1A1614</span></div>
+    </div>
+  </div>
+  <div class="preview-frame">
+    <div class="preview-card"><div class="preview-label">ログイン</div>
+      <div class="A-bg A-login">
+        <svg class="A-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2l2.6 6.4L21 9.3l-5 4.4 1.4 6.6L12 17l-5.4 3.3L8 13.7l-5-4.4 6.4-.9z"/></svg>
+        <div class="A-brand">ESTE SNS</div>
+        <div class="A-sub">Premium Cast Portal</div>
+        <div class="A-form">
+          <div class="A-form-title">マスター管理画面</div>
+          <label class="A-input-label">パスワード</label>
+          <input type="password" class="A-input" placeholder="••••••••">
+          <button class="A-btn">ログイン</button>
+        </div>
+      </div>
+    </div>
+    <div class="preview-card"><div class="preview-label">ダッシュボード</div>
+      <div class="A-bg A-dash">
+        <div class="A-grid">
+          <div class="A-card"><div class="A-stat-label">本日の投稿</div><div class="A-stat-value">12</div><div class="A-stat-sub">予約済 4 / 投稿済 8</div></div>
+          <div class="A-card"><div class="A-stat-label">フォロワー</div><div class="A-stat-value">8.4K</div><div class="A-stat-sub" style="color:#7BA365">+24 今日</div></div>
+        </div>
+        <div class="A-section-title">出勤中キャスト</div>
+        <div class="A-list-item">佐藤 美咲<span class="A-badge">投稿中</span></div>
+        <div class="A-list-item">鈴木 結衣<span class="A-badge">待機中</span></div>
+        <div class="A-list-item">田中 さくら<span class="A-badge">投稿中</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PATTERN B
+============================================================ -->
+<section class="pattern-section" id="pattern-B">
+  <div class="pattern-header">
+    <div class="pattern-title">B. Parisienne Rose</div>
+    <div class="pattern-desc">パールホワイト × ローズゴールド。Cormorant Garamondのイタリック書体でフェミニンで優雅な印象。Chanel／Diorのコスメサイト系の柔らかい高級感。</div>
+    <div class="color-row">
+      <div class="color-chip"><div class="color-swatch" style="background:#FFFAF7"></div><span class="color-label">背景</span><span class="color-hex">#FFFAF7</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#FFFFFF"></div><span class="color-label">カード</span><span class="color-hex">#FFFFFF</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#B76E79"></div><span class="color-label">ローズ</span><span class="color-hex">#B76E79</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#2B2825"></div><span class="color-label">テキスト</span><span class="color-hex">#2B2825</span></div>
+    </div>
+  </div>
+  <div class="preview-frame">
+    <div class="preview-card"><div class="preview-label">ログイン</div>
+      <div class="B-bg B-login">
+        <svg class="B-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21l-1.5-1.4C5 14.4 2 11.5 2 7.9 2 5.4 4 3.5 6.5 3.5c1.4 0 2.8.7 3.5 1.7C10.7 4.2 12.1 3.5 13.5 3.5 16 3.5 18 5.4 18 7.9c0 3.6-3 6.5-8.5 11.7L12 21z"/></svg>
+        <div class="B-brand">ESTE</div>
+        <div class="B-sub">Cast Salon — Member Portal</div>
+        <div class="B-form">
+          <div class="B-form-title">— Master Login —</div>
+          <label class="B-input-label">Password</label>
+          <input type="password" class="B-input" placeholder="••••••••">
+          <button class="B-btn">Sign In</button>
+        </div>
+      </div>
+    </div>
+    <div class="preview-card"><div class="preview-label">ダッシュボード</div>
+      <div class="B-bg B-dash">
+        <div class="B-grid">
+          <div class="B-card"><div class="B-stat-label">Today's Posts</div><div class="B-stat-value">12</div><div class="B-stat-sub">予約 4 / 完了 8</div></div>
+          <div class="B-card"><div class="B-stat-label">Followers</div><div class="B-stat-value">8.4K</div><div class="B-stat-sub">+24 today</div></div>
+        </div>
+        <div class="B-section-title">Active Casts</div>
+        <div class="B-list-item">佐藤 美咲<span class="B-badge">posting</span></div>
+        <div class="B-list-item">鈴木 結衣<span class="B-badge">idle</span></div>
+        <div class="B-list-item">田中 さくら<span class="B-badge">posting</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PATTERN C
+============================================================ -->
+<section class="pattern-section" id="pattern-C">
+  <div class="pattern-header">
+    <div class="pattern-title">C. Editorial Mono</div>
+    <div class="pattern-desc">シャンパンベージュ × ジェットブラック。Bodoni Modaの太字でファッション誌（VOGUE / Harper's BAZAAR）的なエディトリアルな高級感。シャープで現代的。</div>
+    <div class="color-row">
+      <div class="color-chip"><div class="color-swatch" style="background:#F5F0E8"></div><span class="color-label">背景</span><span class="color-hex">#F5F0E8</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#FFFFFF"></div><span class="color-label">カード</span><span class="color-hex">#FFFFFF</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#1C1C1C"></div><span class="color-label">ブラック</span><span class="color-hex">#1C1C1C</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#8B7E6C"></div><span class="color-label">サブ</span><span class="color-hex">#8B7E6C</span></div>
+    </div>
+  </div>
+  <div class="preview-frame">
+    <div class="preview-card"><div class="preview-label">ログイン</div>
+      <div class="C-bg C-login">
+        <svg class="C-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        <div class="C-brand">ESTE</div>
+        <div class="C-sub">— Sns Editorial —</div>
+        <div class="C-form">
+          <div class="C-form-title">Master</div>
+          <label class="C-input-label">Password</label>
+          <input type="password" class="C-input" placeholder="">
+          <button class="C-btn">Enter</button>
+        </div>
+      </div>
+    </div>
+    <div class="preview-card"><div class="preview-label">ダッシュボード</div>
+      <div class="C-bg C-dash">
+        <div class="C-grid">
+          <div class="C-card"><div class="C-stat-label">— Posts —</div><div class="C-stat-value">12</div><div class="C-stat-sub">scheduled 4</div></div>
+          <div class="C-card"><div class="C-stat-label">— Followers —</div><div class="C-stat-value">8.4K</div><div class="C-stat-sub">+24 today</div></div>
+        </div>
+        <div class="C-section-title">Cast Status</div>
+        <div class="C-list-item">佐藤 美咲<span class="C-badge">posting</span></div>
+        <div class="C-list-item">鈴木 結衣<span class="C-badge">idle</span></div>
+        <div class="C-list-item">田中 さくら<span class="C-badge">posting</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PATTERN D
+============================================================ -->
+<section class="pattern-section" id="pattern-D">
+  <div class="pattern-header">
+    <div class="pattern-title">D. Burgundy Jewelry</div>
+    <div class="pattern-desc">パールホワイト × バーガンディ + ゴールド線。Cartier／Tiffany系のジュエリーブティック風。3色配色で華やかさと格調を両立。</div>
+    <div class="color-row">
+      <div class="color-chip"><div class="color-swatch" style="background:#F8F5F2"></div><span class="color-label">背景</span><span class="color-hex">#F8F5F2</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#FFFFFF"></div><span class="color-label">カード</span><span class="color-hex">#FFFFFF</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#722F37"></div><span class="color-label">バーガンディ</span><span class="color-hex">#722F37</span></div>
+      <div class="color-chip"><div class="color-swatch" style="background:#D4AF37"></div><span class="color-label">ゴールド</span><span class="color-hex">#D4AF37</span></div>
+    </div>
+  </div>
+  <div class="preview-frame">
+    <div class="preview-card"><div class="preview-label">ログイン</div>
+      <div class="D-bg D-login">
+        <svg class="D-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z"/></svg>
+        <div class="D-brand">Esté Premium</div>
+        <div class="D-sub">Cast SNS Atelier</div>
+        <div class="D-form">
+          <div class="D-form-title">Master Access</div>
+          <label class="D-input-label">パスワード</label>
+          <input type="password" class="D-input" placeholder="••••••••">
+          <button class="D-btn">Sign In</button>
+        </div>
+      </div>
+    </div>
+    <div class="preview-card"><div class="preview-label">ダッシュボード</div>
+      <div class="D-bg D-dash">
+        <div class="D-grid">
+          <div class="D-card"><div class="D-stat-label">本日の投稿</div><div class="D-stat-value">12</div><div class="D-stat-sub">予約 4 / 完了 8</div></div>
+          <div class="D-card"><div class="D-stat-label">Followers</div><div class="D-stat-value">8.4K</div><div class="D-stat-sub" style="color:#8B7330">+24 today</div></div>
+        </div>
+        <div class="D-section-title">出勤中キャスト</div>
+        <div class="D-list-item">佐藤 美咲<span class="D-badge">投稿中</span></div>
+        <div class="D-list-item">鈴木 結衣<span class="D-badge">待機中</span></div>
+        <div class="D-list-item">田中 さくら<span class="D-badge">投稿中</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="choose-bar">
+  <span class="choose-label">現在表示</span>
+  <span class="current-choice" id="currentChoice">A — Champagne Hotel</span>
+</div>
+
+<script>
+function showPattern(p){
+  document.querySelectorAll('.pattern-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.pattern-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('pattern-' + p).classList.add('active');
+  document.querySelector(`.pattern-tab[data-pattern="${p}"]`).classList.add('active');
+  const labels = { A:'A — Champagne Hotel', B:'B — Parisienne Rose', C:'C — Editorial Mono', D:'D — Burgundy Jewelry' };
+  document.getElementById('currentChoice').textContent = labels[p];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

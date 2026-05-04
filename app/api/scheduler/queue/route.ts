@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
 
       // ── 今すぐ投稿（新規作成 → 即実行） ──
       case 'immediate': {
-        const { castId, castName, platforms, postType, content, credentials } = body
+        const { castId, castName, platforms, postType, content } = body
         if (!content?.trim()) {
           return NextResponse.json({ error: '投稿テキストが空です' }, { status: 400 })
         }
@@ -156,29 +156,9 @@ export async function POST(req: NextRequest) {
         }
         QueueStore.upsert(post)
 
-        // キャスト固有の認証情報があれば使う
-        let results
-        if (credentials) {
-          const { getAdapterWithCredentials } = await import('@/lib/platforms/adapter')
-          const platformResults = await Promise.allSettled(
-            platforms.map((p: string) =>
-              getAdapterWithCredentials(p as never, credentials[p]).post(content)
-            )
-          )
-          results = platformResults.map((r, i) =>
-            r.status === 'fulfilled' ? r.value : { platform: platforms[i], status: 'failed', error: '投稿エラー' }
-          )
-          const allFailed = results.every((r: { status: string }) => r.status === 'failed')
-          QueueStore.updateStatus(post.id, {
-            status: allFailed ? 'failed' : 'sent',
-            results,
-            error: allFailed ? results.map((r: { error?: string }) => r.error).filter(Boolean).join(', ') : undefined,
-          })
-        } else {
-          results = await runSingle(post.id)
-        }
-
-        const allFailed = results.every((r: { status: string }) => r.status === 'failed')
+        // Supabaseからキャスト固有の認証情報を取得して投稿
+        const results = await runSingle(post.id, castId)
+        const allFailed = results.every(r => r.status === 'failed')
         return NextResponse.json({
           success: !allFailed,
           results,
